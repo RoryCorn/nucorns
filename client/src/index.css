@@ -1,0 +1,4 @@
+@import "./styles.css";
+
+body { margin: 0; }
+#root { min-height: 100vh; }
