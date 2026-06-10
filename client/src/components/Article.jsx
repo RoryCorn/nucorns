@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Icon from "./Icon";
-import { Avatar } from "./Primitives";
+import { Avatar, MediaGrid } from "./Primitives";
 import Reaction from "./Reaction";
 import { nuFmt } from "../lib/format";
 
@@ -56,6 +56,11 @@ export default function Article({ post, showHero = true }) {
       <div className="nu-prose">
         {post.body.map((para, i) => <p key={i}>{para}</p>)}
       </div>
+      {post.media && post.media.length > 0 && (
+        <div className="nu-article-media">
+          <MediaGrid media={post.media} />
+        </div>
+      )}
       <div className="nu-postbar">
         <Reaction big targetType="post" targetId={post.id} counts={post.reactions} mine={post.myReaction} />
         <button className="nu-pill"><Icon name="reply" size={19} /><span>{nuFmt(post.shares)}</span></button>

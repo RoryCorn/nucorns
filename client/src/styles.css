@@ -110,6 +110,7 @@ input, textarea { font-family: inherit; }
 .nu-hero-label { background: rgba(10,25,38,.55); color: #fff; }
 
 .nu-prose p { font-size: 18.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 20px; text-wrap: pretty; }
+.nu-article-media { margin: 8px 0 24px; }
 
 .nu-postbar { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--border); }
 .nu-pill {
