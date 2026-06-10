@@ -5,7 +5,6 @@ import Icon from "../components/Icon";
 import { Avatar } from "../components/Primitives";
 import PostCard, { coverBg } from "../components/PostCard";
 import MatchSection from "../components/MatchSection";
-import { AdSlot } from "../components/Ads";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { nuFmt } from "../lib/format";
@@ -100,7 +99,6 @@ export default function ProfilePage() {
             )}
             {!featured && <p style={{ color: "var(--muted)" }}>No stories published yet.</p>}
             {featured && <PostCard post={featured} featured />}
-            {posts.length > 0 && <AdSlot slotId="feed" />}
             <div className="pf-grid">
               {rest.map((p) => <PostCard key={p.id} post={p} />)}
             </div>
@@ -133,7 +131,7 @@ export default function ProfilePage() {
 
         {isMine && <MatchSection />}
 
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦ · <Link to="/advertising">Advertise</Link></footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦</footer>
       </main>
     </div>
   );

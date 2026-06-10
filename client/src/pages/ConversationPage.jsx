@@ -5,7 +5,6 @@ import Article from "../components/Article";
 import Lightbox from "../components/Lightbox";
 import Composer from "../components/Composer";
 import Comment from "../components/Comment";
-import { AdSlot } from "../components/Ads";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { useAppearance } from "../lib/AppearanceContext";
@@ -87,8 +86,6 @@ export default function ConversationPage() {
       <main className="nu-main">
         <Article post={post} showHero={appearance.showHero} />
 
-        <div className="nu-adslot-wrap"><AdSlot slotId="convo" /></div>
-
         <section className="nu-convo">
           <div className="nu-convo-head">
             <h2 className="nu-convo-title">Conversation <span>{total}</span></h2>
@@ -114,8 +111,7 @@ export default function ConversationPage() {
             ))}
           </div>
         </section>
-        <div className="nu-adslot-wrap"><AdSlot slotId="story" /></div>
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · be kind in the comments ✦ · <Link to="/advertising">Advertise</Link></footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · be kind in the comments ✦</footer>
       </main>
 
       <Lightbox m={lightbox} onClose={() => setLightbox(null)} />

@@ -71,6 +71,17 @@ input, textarea { font-family: inherit; }
 /* ---------- Layout ---------- */
 .nu-main { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
 
+/* ---------- Home feed + sidebar ---------- */
+.hm-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: start; }
+.hm-feed { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.hm-sidebar { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 16px; }
+.hm-sidebar-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+.hm-sidebar-inner { display: flex; flex-direction: column; gap: 14px; }
+@media (max-width: 780px) {
+  .hm-wrap { grid-template-columns: 1fr; }
+  .hm-sidebar { position: static; }
+}
+
 /* ---------- Article ---------- */
 .nu-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .nu-cat {

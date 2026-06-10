@@ -5,8 +5,23 @@ import { Avatar } from "./Primitives";
 import Reaction from "./Reaction";
 import { nuFmt } from "../lib/format";
 
+async function sharePost(post) {
+  const url = `${window.location.origin}/post/${post.id}`;
+  if (navigator.share) {
+    try { await navigator.share({ title: post.title, text: post.dek || "", url }); return; } catch (e) { if (e.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(url); } catch (e) {}
+}
+
 export default function Article({ post, showHero = true }) {
   const [following, setFollowing] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    await sharePost(post);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   if (!post) return null;
   const a = post.author;
   const cover = post.cover;
@@ -44,7 +59,7 @@ export default function Article({ post, showHero = true }) {
       <div className="nu-postbar">
         <Reaction big targetType="post" targetId={post.id} counts={post.reactions} mine={post.myReaction} />
         <button className="nu-pill"><Icon name="reply" size={19} /><span>{nuFmt(post.shares)}</span></button>
-        <button className="nu-pill"><Icon name="share" size={18} /><span>Share</span></button>
+        <button className="nu-pill" onClick={handleShare}><Icon name="share" size={18} /><span>{copied ? "Copied!" : "Share"}</span></button>
         <button className="nu-pill nu-pill-bm"><Icon name="bookmark" size={18} /></button>
       </div>
     </article>
