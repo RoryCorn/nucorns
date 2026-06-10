@@ -19,6 +19,8 @@ const PATHS = {
   audio: <g><path d="M9 18V7l10-2v11" /><circle cx="6" cy="18" r="2.5" /><circle cx="16" cy="16" r="2.5" /></g>,
   lock: <g><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></g>,
   plus: <path d="M12 5v14M5 12h14" />,
+  user: <g><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></g>,
+  settings: <g><circle cx="12" cy="12" r="3" /><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></g>,
 };
 
 export default function Icon({ name, size = 20, fill = "none" }) {
