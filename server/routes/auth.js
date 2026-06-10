@@ -65,7 +65,13 @@ router.post("/signup", async (req, res) => {
 
 router.post("/login", (req, res) => {
   const { email, password } = req.body || {};
-  const row = db.prepare("SELECT * FROM users WHERE email = ?").get(String(email || "").trim().toLowerCase());
+  const identifier = String(email || "").trim().toLowerCase();
+  // Accept either email or @handle (with or without the @)
+  const isHandle = !identifier.includes("@") || identifier.startsWith("@");
+  const cleanHandle = identifier.replace(/^@/, "");
+  const row = isHandle
+    ? db.prepare("SELECT * FROM users WHERE handle = ?").get(cleanHandle)
+    : db.prepare("SELECT * FROM users WHERE email = ?").get(identifier);
   if (!row || !row.password_hash || !bcrypt.compareSync(String(password || ""), row.password_hash)) {
     return res.status(401).json({ error: "Incorrect email or password." });
   }

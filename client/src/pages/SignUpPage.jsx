@@ -279,9 +279,9 @@ function LoginForm({ onDone, onSwitchToSignup }) {
       <form className="su-step" onSubmit={submit}>
         <h1 className="su-h1">Welcome back</h1>
         <p className="su-sub">Sign in to keep writing, reacting & vibing with creators.</p>
-        <Field label="Email">
-          <input className="su-input" type="email" value={email} placeholder="you@example.com"
-            onChange={(e) => setEmail(e.target.value)} autoFocus />
+        <Field label="Email or handle">
+          <input className="su-input" value={email} placeholder="you@example.com or yourhandle"
+            onChange={(e) => setEmail(e.target.value)} autoFocus autoComplete="username" />
         </Field>
         <Field label="Password">
           <input className="su-input" type="password" value={password} placeholder="••••••••"
