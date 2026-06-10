@@ -5,6 +5,7 @@ const { requireAuth, requireAdmin } = require("../auth");
 const { moderateText } = require("../lib/moderation");
 const { moderateImageBuffer } = require("../lib/image-moderation");
 const { upload, fileUrl } = require("../lib/uploads");
+const { sendAdInquiryEmail } = require("../lib/mailer");
 
 const router = express.Router();
 
@@ -82,6 +83,14 @@ router.post("/requests", async (req, res) => {
   });
   const row = db.prepare("SELECT * FROM ad_requests WHERE id = ?").get(id);
   res.status(201).json({ request: serializeReq(row) });
+
+  // Fire-and-forget email — don't let a mail failure affect the response
+  sendAdInquiryEmail({
+    company,
+    contact,
+    what: String(d.body || headline).trim(),
+    timing: String(d.note || "").trim(),
+  }).catch((err) => console.error("Ad inquiry email failed:", err.message));
 });
 
 // ---------- Admin console (requires is_admin) ----------
