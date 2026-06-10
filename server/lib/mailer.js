@@ -42,4 +42,33 @@ async function sendAdInquiryEmail({ company, contact, what, timing }) {
   });
 }
 
-module.exports = { sendAdInquiryEmail };
+async function sendCreativeFormEmail({ company, contact, token }) {
+  const transport = getTransport();
+  if (!transport) return;
+
+  const origin = process.env.CLIENT_ORIGIN || "https://nucorns.com";
+  const link = `${origin}/advertise/creative/${token}`;
+
+  await transport.sendMail({
+    from: `"nucorns ads" <${process.env.GMAIL_USER}>`,
+    to: contact,
+    subject: `Your nucorns ad is approved — submit your creative`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+        <h2 style="color:#FF7A1A">Your ad inquiry has been approved!</h2>
+        <p>Hi ${company} team,</p>
+        <p>Great news — the nucorns team has approved your advertising inquiry. You're one step away from going live.</p>
+        <p><strong>Use the link below to submit your ad creative</strong> — your headline, description, image or video, and the URL you'd like to send people to.</p>
+        <p style="margin:28px 0">
+          <a href="${link}" style="background:#119cf0;color:#fff;text-decoration:none;padding:14px 28px;border-radius:999px;font-weight:700;font-size:15px">Submit your ad creative →</a>
+        </p>
+        <p style="color:#888;font-size:13px">This link is unique to your campaign. Once you submit, the nucorns team will review your creative and place your ad.</p>
+        <p style="color:#888;font-size:13px">Questions? Reply to this email and we'll get back to you.</p>
+        <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+        <p style="color:#aaa;font-size:12px">nucorns · advertising that respects the room</p>
+      </div>
+    `,
+  });
+}
+
+module.exports = { sendAdInquiryEmail, sendCreativeFormEmail };

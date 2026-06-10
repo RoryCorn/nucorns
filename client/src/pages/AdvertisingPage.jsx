@@ -200,6 +200,21 @@ function AdminCreate({ slots, formats, onCreated }) {
   );
 }
 
+const STATUS_LABEL = {
+  pending: "Pending",
+  approved: "Awaiting creative",
+  creative_submitted: "Creative received",
+  placed: "Placed",
+  rejected: "Rejected",
+};
+const STATUS_CLASS = {
+  pending: "ad-status-pending",
+  approved: "ad-status-approved",
+  creative_submitted: "ad-status-creative",
+  placed: "ad-status-placed",
+  rejected: "ad-status-rejected",
+};
+
 function AdminConsole({ slots, formats }) {
   const [ads, setAds] = useState([]);
   const [reqs, setReqs] = useState([]);
@@ -218,17 +233,23 @@ function AdminConsole({ slots, formats }) {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { if (slots.length) setPlaceSlot(slots[0].id); }, [slots]);
 
-  async function approveLive(r, slot) {
-    await api.post(`/ads/requests/${r.id}/approve`, { slot, live: true });
-    setPlacing(null);
+  async function approve(r) {
+    await api.post(`/ads/requests/${r.id}/approve`);
     load();
   }
   async function reject(r) { await api.post(`/ads/requests/${r.id}/reject`); load(); }
+  async function placeLive(r, slot) {
+    await api.post(`/ads/requests/${r.id}/place`, { slot, live: true });
+    setPlacing(null);
+    load();
+  }
   async function clearSlot(slotId) { await api.post(`/ads/slots/${slotId}/clear`); load(); }
   async function toggleLive(ad) { await api.patch(`/ads/${ad.id}`, { live: !ad.live }); load(); }
   async function removeAd(adId) { if (!window.confirm("Remove this ad?")) return; await api.del(`/ads/${adId}`); load(); }
 
-  const pending = reqs.filter((r) => r.status === "pending");
+  const activeReqs = reqs.filter((r) => r.status !== "rejected" && r.status !== "placed");
+  const pendingCount = reqs.filter((r) => r.status === "pending").length;
+  const creativeCount = reqs.filter((r) => r.status === "creative_submitted").length;
 
   return (
     <div className="ad-admin">
@@ -272,53 +293,95 @@ function AdminConsole({ slots, formats }) {
         )}
       </section>
 
-      {/* ── Pending inquiries ── */}
+      {/* ── Inquiries ── */}
       <section className="acp-section">
         <div className="acp-section-head">
-          <h3>Inquiries {pending.length > 0 && <span className="acp-badge">{pending.length} pending</span>}</h3>
+          <h3>
+            Inquiries
+            {pendingCount > 0 && <span className="acp-badge">{pendingCount} pending</span>}
+            {creativeCount > 0 && <span className="acp-badge acp-badge-green">{creativeCount} ready to place</span>}
+          </h3>
         </div>
 
         {loading && <p style={{ color: "var(--muted)" }}>Loading…</p>}
-        {!loading && reqs.length === 0 && <div className="ad-empty">No inquiries yet.</div>}
+        {!loading && activeReqs.length === 0 && <div className="ad-empty">No active inquiries.</div>}
 
         <div className="acp-reqs">
-          {reqs.map((r) => (
-            <div key={r.id} className={"acp-req" + (r.status !== "pending" ? " acp-req-done" : "")}>
+          {activeReqs.map((r) => (
+            <div key={r.id} className={"acp-req" + (r.status === "approved" ? " acp-req-waiting" : r.status === "creative_submitted" ? " acp-req-ready" : "")}>
               <div className="acp-req-info">
                 <div className="acp-req-top">
                   <strong>{r.company}</strong>
-                  <span className={"ad-status ad-status-" + r.status}>{r.status}</span>
+                  <span className={"ad-status " + (STATUS_CLASS[r.status] || "")}>{STATUS_LABEL[r.status] || r.status}</span>
                 </div>
-                <div className="acp-req-what">{r.body || r.headline}</div>
-                <div className="acp-req-meta">{r.contact}{r.note ? " · " + r.note : ""}</div>
+                {(r.body || r.note) && <div className="acp-req-what">{r.body || r.note}</div>}
+                <div className="acp-req-meta">{r.contact}{r.note && r.body ? " · " + r.note : ""}</div>
+                {r.status === "creative_submitted" && r.headline && (
+                  <div className="acp-creative-preview">
+                    <span className="ad-chip">{r.format}</span>
+                    <strong>{r.headline}</strong>
+                    {r.body && <span>{r.body}</span>}
+                    {r.url && <a href={r.url} target="_blank" rel="noreferrer" className="acp-req-link">{r.url}</a>}
+                  </div>
+                )}
               </div>
 
-              {r.status === "pending" && (
-                <div className="acp-req-actions">
-                  {placing === r.id ? (
+              <div className="acp-req-actions">
+                {r.status === "pending" && (
+                  <>
+                    <button className="ad-approve" onClick={() => approve(r)}>
+                      <Icon name="send" size={15} />Approve & send form
+                    </button>
+                    <button className="ad-reject" onClick={() => reject(r)}>Reject</button>
+                  </>
+                )}
+
+                {r.status === "approved" && (
+                  <span className="acp-waiting-tag"><Icon name="sparkle" size={13} />Form sent — awaiting creative</span>
+                )}
+
+                {r.status === "creative_submitted" && (
+                  placing === r.id ? (
                     <div className="acp-place-row">
-                      <span className="su-label">Place in slot:</span>
+                      <span className="su-label">Slot:</span>
                       <select className="su-input acp-slot-pick" value={placeSlot} onChange={(e) => setPlaceSlot(e.target.value)}>
                         {slots.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                       </select>
-                      <button className="ad-approve" onClick={() => approveLive(r, placeSlot)}>
-                        <Icon name="check" size={15} />Approve & go live
+                      <button className="ad-approve" onClick={() => placeLive(r, placeSlot)}>
+                        <Icon name="check" size={15} />Place & go live
                       </button>
                       <button className="acp-cancel" onClick={() => setPlacing(null)}>Cancel</button>
                     </div>
                   ) : (
-                    <>
-                      <button className="ad-approve" onClick={() => { setPlacing(r.id); setPlaceSlot(slots[0]?.id || "home-1"); }}>
-                        <Icon name="check" size={15} />Approve & place
-                      </button>
-                      <button className="ad-reject" onClick={() => reject(r)}>Reject</button>
-                    </>
-                  )}
-                </div>
-              )}
+                    <button className="ad-approve acp-place-btn" onClick={() => { setPlacing(r.id); setPlaceSlot(slots[0]?.id || "home-1"); }}>
+                      <Icon name="check" size={15} />Place ad live
+                    </button>
+                  )
+                )}
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Show closed/placed requests collapsed */}
+        {reqs.filter((r) => r.status === "rejected" || r.status === "placed").length > 0 && (
+          <details className="acp-closed">
+            <summary>Show closed inquiries ({reqs.filter((r) => r.status === "rejected" || r.status === "placed").length})</summary>
+            <div className="acp-reqs" style={{ marginTop: 10 }}>
+              {reqs.filter((r) => r.status === "rejected" || r.status === "placed").map((r) => (
+                <div key={r.id} className="acp-req acp-req-done">
+                  <div className="acp-req-info">
+                    <div className="acp-req-top">
+                      <strong>{r.company}</strong>
+                      <span className={"ad-status " + (STATUS_CLASS[r.status] || "")}>{STATUS_LABEL[r.status] || r.status}</span>
+                    </div>
+                    <div className="acp-req-meta">{r.contact}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
       </section>
 
       {/* ── All ads inventory ── */}

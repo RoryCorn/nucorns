@@ -10,6 +10,10 @@ const db = new Database(path.join(DATA_DIR, "nucorns.db"));
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
+// Idempotent column migrations
+try { db.exec(`ALTER TABLE ad_requests ADD COLUMN token TEXT`); } catch (_) {}
+try { db.exec(`ALTER TABLE ad_requests ADD COLUMN token_used INTEGER DEFAULT 0`); } catch (_) {}
+
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

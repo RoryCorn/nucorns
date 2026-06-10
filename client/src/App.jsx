@@ -6,6 +6,7 @@ import ProfilePage from "./pages/ProfilePage";
 import SignUpPage from "./pages/SignUpPage";
 import WritePage from "./pages/WritePage";
 import AdvertisingPage from "./pages/AdvertisingPage";
+import CreativeSubmitPage from "./pages/CreativeSubmitPage";
 import SettingsPage from "./pages/SettingsPage";
 import HomePage from "./pages/HomePage";
 
@@ -28,6 +29,7 @@ export default function App() {
               <Route path="/u/:handle" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/advertising" element={<AdvertisingPage />} />
+              <Route path="/advertise/creative/:token" element={<CreativeSubmitPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
