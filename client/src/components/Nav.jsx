@@ -14,6 +14,7 @@ export default function Nav() {
         <div className="nu-nav-right">
           {user ? (
             <>
+              {user.isAdmin && <Link className="nu-btn-ghost nu-admin-link" to="/advertising"><Icon name="lock" size={14} />Admin</Link>}
               <Link className="nu-nav-write" to="/write"><Icon name="sparkle" size={16} />Write</Link>
               <Link to={`/u/${user.handle}`}><Avatar user={user} size={36} /></Link>
             </>

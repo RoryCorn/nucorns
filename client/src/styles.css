@@ -762,6 +762,39 @@ select.su-input { appearance: none; background-image: url("data:image/svg+xml,%3
 .ad-invrow-btn { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); background: var(--surface-2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px; }
 .ad-invrow-btn.ad-del { padding: 6px 9px; color: var(--danger-deep); }
 
+/* ── Admin control panel (ACP) ── */
+.nu-admin-link { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: var(--accent) !important; }
+.acp-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-soft); padding: 22px 24px; margin-bottom: 20px; }
+.acp-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.acp-section-head h3 { font-size: 18px; font-weight: 800; letter-spacing: -.02em; margin: 0; display: flex; align-items: center; gap: 10px; }
+.acp-badge { font-size: 12px; font-weight: 800; color: #fff; background: var(--orange); padding: 2px 9px; border-radius: 999px; }
+.acp-create-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.acp-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.acp-slot { background: var(--surface-2); border: 1.5px dashed var(--border-strong); border-radius: 14px; padding: 16px; }
+.acp-slot.has-ad { border-style: solid; border-color: var(--border); background: var(--surface); }
+.acp-slot-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.acp-slot-name { font-size: 13.5px; font-weight: 800; color: var(--ink-soft); }
+.acp-slot-clear { font-size: 12.5px; font-weight: 700; color: var(--danger-deep); padding: 5px 12px; border-radius: 999px; }
+.acp-slot-clear:hover { background: color-mix(in oklab, var(--danger) 9%, white); }
+.acp-slot-empty-tag { font-size: 11.5px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .04em; }
+.acp-slot-preview { max-width: 340px; }
+.acp-slot-blank { font-size: 13.5px; color: var(--faint); font-style: italic; padding: 12px 0 4px; }
+.acp-create-wrap { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.acp-reqs { display: flex; flex-direction: column; gap: 10px; }
+.acp-req { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.acp-req.acp-req-done { opacity: .55; }
+.acp-req-info { margin-bottom: 12px; }
+.acp-req-top { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; }
+.acp-req-top strong { font-size: 15px; }
+.acp-req-what { font-size: 14px; color: var(--ink-soft); margin-bottom: 5px; }
+.acp-req-meta { font-size: 12.5px; color: var(--muted); }
+.acp-req-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.acp-place-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.acp-place-row .su-label { font-size: 13px; white-space: nowrap; margin: 0; }
+.acp-slot-pick { max-width: 220px; font-size: 13.5px; padding: 7px 12px; }
+.acp-cancel { font-size: 13px; font-weight: 700; color: var(--muted); padding: 8px 14px; border-radius: 999px; }
+.acp-cancel:hover { background: var(--surface-2); }
+
 .ad-livetoggle { align-items: flex-start; }
 .ad-switch { width: 46px; height: 27px; border-radius: 999px; background: var(--border-strong); position: relative; transition: background .18s; margin-top: 2px; }
 .ad-switch span { position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .18s; }

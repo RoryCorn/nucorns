@@ -102,12 +102,15 @@ router.get("/requests", requireAdmin, (req, res) => {
 router.post("/requests/:id/approve", requireAdmin, (req, res) => {
   const r = db.prepare("SELECT * FROM ad_requests WHERE id = ?").get(req.params.id);
   if (!r) return res.status(404).json({ error: "Request not found." });
+  const slot = NU_AD_SLOTS.some((s) => s.id === req.body.slot) ? req.body.slot : (NU_AD_SLOTS.some((s) => s.id === r.preferred_slot) ? r.preferred_slot : NU_AD_SLOTS[0].id);
+  const live = req.body.live !== false;
   const id = "a" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const ts = Date.now();
+  if (live) db.prepare("UPDATE ads SET live = 0 WHERE slot = ?").run(slot);
   db.prepare(`
     INSERT INTO ads (id, company, format, headline, body, url, cta, media_src, slot, live, created_at)
-    VALUES (@id, @company, @format, @headline, @body, @url, @cta, @media_src, @slot, 0, @created_at)
-  `).run({ id, company: r.company, format: r.format, headline: r.headline, body: r.body, url: r.url, cta: r.cta, media_src: r.media_src, slot: r.preferred_slot, created_at: ts });
+    VALUES (@id, @company, @format, @headline, @body, @url, @cta, @media_src, @slot, @live, @created_at)
+  `).run({ id, company: r.company, format: r.format, headline: r.headline, body: r.body, url: r.url, cta: r.cta, media_src: r.media_src, slot, live: live ? 1 : 0, created_at: ts });
   db.prepare("UPDATE ad_requests SET status = 'approved' WHERE id = ?").run(r.id);
   res.json({ ok: true, ad: serializeAd(db.prepare("SELECT * FROM ads WHERE id = ?").get(id)) });
 });

@@ -201,10 +201,12 @@ function AdminCreate({ slots, formats, onCreated }) {
 }
 
 function AdminConsole({ slots, formats }) {
-  const [tab, setTab] = useState("requests");
   const [ads, setAds] = useState([]);
   const [reqs, setReqs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [placing, setPlacing] = useState(null); // reqId being placed
+  const [placeSlot, setPlaceSlot] = useState(slots[0]?.id || "home-1");
+  const [showCreate, setShowCreate] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -214,75 +216,116 @@ function AdminConsole({ slots, formats }) {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (slots.length) setPlaceSlot(slots[0].id); }, [slots]);
 
-  async function approve(r) { await api.post(`/ads/requests/${r.id}/approve`); load(); }
+  async function approveLive(r, slot) {
+    await api.post(`/ads/requests/${r.id}/approve`, { slot, live: true });
+    setPlacing(null);
+    load();
+  }
   async function reject(r) { await api.post(`/ads/requests/${r.id}/reject`); load(); }
-  async function place(slotId, adId) { await api.patch(`/ads/${adId}`, { slot: slotId, live: true }); load(); }
   async function clearSlot(slotId) { await api.post(`/ads/slots/${slotId}/clear`); load(); }
   async function toggleLive(ad) { await api.patch(`/ads/${ad.id}`, { live: !ad.live }); load(); }
-  async function removeAd(adId) { await api.del(`/ads/${adId}`); load(); }
+  async function removeAd(adId) { if (!window.confirm("Remove this ad?")) return; await api.del(`/ads/${adId}`); load(); }
 
   const pending = reqs.filter((r) => r.status === "pending");
 
   return (
     <div className="ad-admin">
       <div className="ad-admin-top">
-        <div>
-          <h2 className="ad-admin-h">Ad control center</h2>
-          <p className="ad-admin-sub">Admin-only. Review inquiries and control exactly what runs in each slot.</p>
+        <h2 className="ad-admin-h">Ad Control Panel</h2>
+        <p className="ad-admin-sub">You have full control over what runs, where, and when.</p>
+      </div>
+
+      {/* ── Live slots ── */}
+      <section className="acp-section">
+        <div className="acp-section-head">
+          <h3>Live placements</h3>
+          <button className="nu-btn-ghost acp-create-btn" onClick={() => setShowCreate((v) => !v)}>
+            <Icon name="plus" size={15} />{showCreate ? "Cancel" : "Create ad directly"}
+          </button>
         </div>
-      </div>
 
-      <div className="ad-tabs">
-        {[["requests", "Inquiries" + (pending.length ? " (" + pending.length + ")" : "")], ["placements", "Placements"], ["create", "Create ad"]].map(([id, label]) => (
-          <button key={id} className={"ad-tab" + (tab === id ? " is-on" : "")} onClick={() => setTab(id)}>{label}</button>
-        ))}
-      </div>
-
-      {tab === "requests" && (
-        <div className="ad-reqs">
-          {!loading && reqs.length === 0 && <div className="ad-empty">No inquiries yet.</div>}
-          {reqs.map((r) => (
-            <div className="ad-reqcard" key={r.id} data-status={r.status}>
-              <div className="ad-reqcard-main">
-                <div className="ad-reqcard-head"><strong>{r.company}</strong><span className={"ad-status ad-status-" + r.status}>{r.status}</span></div>
-                <div className="ad-reqcard-hl">{r.headline}</div>
-                {r.body && <div className="ad-reqcard-body">{r.body}</div>}
-                <div className="ad-reqcard-meta">{r.contact}{r.note ? " · Timing: " + r.note : ""}</div>
+        <div className="acp-slots">
+          {slots.map((s) => {
+            const live = ads.find((a) => a.slot === s.id && a.live);
+            return (
+              <div key={s.id} className={"acp-slot" + (live ? " has-ad" : "")}>
+                <div className="acp-slot-head">
+                  <span className="acp-slot-name">{s.label}</span>
+                  {live
+                    ? <button className="acp-slot-clear" onClick={() => clearSlot(s.id)}>Remove</button>
+                    : <span className="acp-slot-empty-tag">Empty</span>}
+                </div>
+                {live
+                  ? <div className="acp-slot-preview"><AdUnit ad={live} /></div>
+                  : <div className="acp-slot-blank">No ad running in this slot</div>}
               </div>
+            );
+          })}
+        </div>
+
+        {showCreate && (
+          <div className="acp-create-wrap">
+            <AdminCreate slots={slots} formats={formats} onCreated={() => { setShowCreate(false); load(); }} />
+          </div>
+        )}
+      </section>
+
+      {/* ── Pending inquiries ── */}
+      <section className="acp-section">
+        <div className="acp-section-head">
+          <h3>Inquiries {pending.length > 0 && <span className="acp-badge">{pending.length} pending</span>}</h3>
+        </div>
+
+        {loading && <p style={{ color: "var(--muted)" }}>Loading…</p>}
+        {!loading && reqs.length === 0 && <div className="ad-empty">No inquiries yet.</div>}
+
+        <div className="acp-reqs">
+          {reqs.map((r) => (
+            <div key={r.id} className={"acp-req" + (r.status !== "pending" ? " acp-req-done" : "")}>
+              <div className="acp-req-info">
+                <div className="acp-req-top">
+                  <strong>{r.company}</strong>
+                  <span className={"ad-status ad-status-" + r.status}>{r.status}</span>
+                </div>
+                <div className="acp-req-what">{r.body || r.headline}</div>
+                <div className="acp-req-meta">{r.contact}{r.note ? " · " + r.note : ""}</div>
+              </div>
+
               {r.status === "pending" && (
-                <div className="ad-reqcard-actions">
-                  <button className="ad-approve" onClick={() => approve(r)}><Icon name="check" size={15} />Approve</button>
-                  <button className="ad-reject" onClick={() => reject(r)}>Reject</button>
+                <div className="acp-req-actions">
+                  {placing === r.id ? (
+                    <div className="acp-place-row">
+                      <span className="su-label">Place in slot:</span>
+                      <select className="su-input acp-slot-pick" value={placeSlot} onChange={(e) => setPlaceSlot(e.target.value)}>
+                        {slots.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                      </select>
+                      <button className="ad-approve" onClick={() => approveLive(r, placeSlot)}>
+                        <Icon name="check" size={15} />Approve & go live
+                      </button>
+                      <button className="acp-cancel" onClick={() => setPlacing(null)}>Cancel</button>
+                    </div>
+                  ) : (
+                    <>
+                      <button className="ad-approve" onClick={() => { setPlacing(r.id); setPlaceSlot(slots[0]?.id || "home-1"); }}>
+                        <Icon name="check" size={15} />Approve & place
+                      </button>
+                      <button className="ad-reject" onClick={() => reject(r)}>Reject</button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
           ))}
         </div>
-      )}
+      </section>
 
-      {tab === "placements" && (
-        <div className="ad-places">
-          {slots.map((s) => {
-            const live = ads.find((a) => a.slot === s.id && a.live);
-            return (
-              <div className="ad-place" key={s.id}>
-                <div className="ad-place-head">
-                  <div><strong>{s.label}</strong><span className="ad-place-note">{s.note}</span></div>
-                  {live && <button className="ad-place-clear" onClick={() => clearSlot(s.id)}>Clear</button>}
-                </div>
-                <div className="ad-place-pick">
-                  <select className="su-input" value={live ? live.id : ""} onChange={(e) => e.target.value ? place(s.id, e.target.value) : clearSlot(s.id)}>
-                    <option value="">— No ad running —</option>
-                    {ads.map((a) => <option key={a.id} value={a.id}>{a.company} · {a.headline || a.format}</option>)}
-                  </select>
-                </div>
-                {live ? <div className="ad-place-preview"><AdUnit ad={live} /></div> : <div className="ad-place-empty">Nothing running in this slot.</div>}
-              </div>
-            );
-          })}
+      {/* ── All ads inventory ── */}
+      {ads.length > 0 && (
+        <section className="acp-section">
+          <div className="acp-section-head"><h3>All ads</h3></div>
           <div className="ad-inventory">
-            <h4>All ads ({ads.length})</h4>
             {ads.map((a) => (
               <div className="ad-invrow" key={a.id}>
                 <span className="ad-chip">{a.format}</span>
@@ -292,12 +335,9 @@ function AdminConsole({ slots, formats }) {
                 <button className="ad-invrow-btn ad-del" onClick={() => removeAd(a.id)}><Icon name="close" size={14} /></button>
               </div>
             ))}
-            {ads.length === 0 && <div className="ad-empty">No ads yet — approve an inquiry or create one directly.</div>}
           </div>
-        </div>
+        </section>
       )}
-
-      {tab === "create" && <AdminCreate slots={slots} formats={formats} onCreated={() => { load(); setTab("placements"); }} />}
     </div>
   );
 }
