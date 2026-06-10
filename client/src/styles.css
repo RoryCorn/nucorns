@@ -895,5 +895,7 @@ select.su-input { appearance: none; background-image: url("data:image/svg+xml,%3
 .set-toggle.is-on { background: var(--accent); }
 .set-toggle.is-on i { transform: translateX(18px); }
 .set-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-top: 4px; }
+.set-pw-ok { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; color: #1f9d57; margin: 0; }
+.su-input-err { border-color: var(--danger) !important; }
 .set-saved { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #1f9d57; }
 

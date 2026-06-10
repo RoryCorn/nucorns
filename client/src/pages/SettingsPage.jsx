@@ -43,6 +43,61 @@ function SegRadio({ label, value, options, onChange, render }) {
   );
 }
 
+function PasswordForm() {
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [done, setDone] = useState(false);
+
+  const mismatch = next && confirm && next !== confirm;
+  const canSave = current && next.length >= 6 && next === confirm && !busy;
+
+  async function save(e) {
+    e.preventDefault();
+    if (!canSave) return;
+    setErr(""); setBusy(true);
+    try {
+      await api.post("/users/me/password", { current, next });
+      setDone(true);
+      setCurrent(""); setNext(""); setConfirm("");
+    } catch (ex) {
+      setErr(ex.message || "Couldn't update password.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form className="set-form" onSubmit={save}>
+      {done && <p className="set-pw-ok"><Icon name="check" size={15} />Password updated successfully.</p>}
+      <div className="set-row">
+        <label className="set-row-label">Current password</label>
+        <input className="su-input" type="password" value={current} placeholder="••••••••"
+          onChange={(e) => { setCurrent(e.target.value); setDone(false); }} autoComplete="current-password" />
+      </div>
+      <div className="set-row">
+        <label className="set-row-label">New password <span style={{ fontWeight: 500, color: "var(--muted)" }}>(min 6 characters)</span></label>
+        <input className="su-input" type="password" value={next} placeholder="••••••••"
+          onChange={(e) => { setNext(e.target.value); setDone(false); }} autoComplete="new-password" />
+      </div>
+      <div className="set-row">
+        <label className="set-row-label">Confirm new password</label>
+        <input className={"su-input" + (mismatch ? " su-input-err" : "")} type="password" value={confirm} placeholder="••••••••"
+          onChange={(e) => { setConfirm(e.target.value); setDone(false); }} autoComplete="new-password" />
+        {mismatch && <span className="su-err" style={{ marginTop: 4 }}><Icon name="close" size={13} />Passwords don't match</span>}
+      </div>
+      {err && <span className="su-err"><Icon name="close" size={14} />{err}</span>}
+      <div className="set-actions">
+        <button className="nu-btn-post" type="submit" disabled={!canSave}>
+          {busy ? <><span className="wr-spin" />Saving…</> : "Update password"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function SettingsPage() {
   const { user, loading: authLoading, setUser, logout } = useAuth();
   const { appearance, setAppearance } = useAppearance();
@@ -235,6 +290,14 @@ export default function SettingsPage() {
               <button type="button" className="nu-btn-ghost" onClick={() => setAppearance(APPEARANCE_DEFAULTS)}>Reset to defaults</button>
             </div>
           </div>
+        </section>
+
+        <section className="set-card">
+          <div className="set-card-head">
+            <h2>Change password</h2>
+            <p>Choose a new password for your account.</p>
+          </div>
+          <PasswordForm />
         </section>
 
         <section className="set-card">

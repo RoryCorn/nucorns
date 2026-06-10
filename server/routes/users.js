@@ -1,5 +1,6 @@
 const express = require("express");
 const db = require("../db");
+const bcrypt = require("bcryptjs");
 const { serializeUser, getUserByHandle, requireAuth } = require("../auth");
 const { moderateText } = require("../lib/moderation");
 const { upload, fileUrl } = require("../lib/uploads");
@@ -72,6 +73,20 @@ router.put("/me/appearance", requireAuth, (req, res) => {
   if (!appearance || typeof appearance !== "object") return res.status(400).json({ error: "Missing appearance settings." });
   db.prepare("UPDATE users SET appearance = ? WHERE id = ?").run(JSON.stringify(appearance), req.user.id);
   res.json({ appearance });
+});
+
+router.post("/me/password", requireAuth, (req, res) => {
+  const { current, next } = req.body || {};
+  const row = db.prepare("SELECT * FROM users WHERE id = ?").get(req.user.id);
+  if (!row.password_hash || !bcrypt.compareSync(String(current || ""), row.password_hash)) {
+    return res.status(401).json({ error: "Current password is incorrect." });
+  }
+  if (!next || String(next).length < 6) {
+    return res.status(400).json({ error: "New password must be at least 6 characters." });
+  }
+  const hash = bcrypt.hashSync(String(next), 10);
+  db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(hash, req.user.id);
+  res.json({ ok: true });
 });
 
 module.exports = router;

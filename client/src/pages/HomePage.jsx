@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import Nav from "../components/Nav";
 import PostCard from "../components/PostCard";
 import { AdSlot } from "../components/Ads";
 import { api } from "../lib/api";
+
+const AD_SLOTS = ["home-1","home-2","home-3","home-4","home-5","home-6","home-7","home-8"];
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -28,8 +29,7 @@ export default function HomePage() {
         <aside className="hm-sidebar">
           <div className="hm-sidebar-inner">
             <div className="hm-sidebar-label">Sponsored</div>
-            <AdSlot slotId="home-1" />
-            <AdSlot slotId="home-2" />
+            {AD_SLOTS.map((id) => <AdSlot key={id} slotId={id} />)}
           </div>
         </aside>
       </div>

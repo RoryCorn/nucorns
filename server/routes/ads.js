@@ -11,8 +11,14 @@ const { sendAdInquiryEmail, sendCreativeFormEmail } = require("../lib/mailer");
 const router = express.Router();
 
 const NU_AD_SLOTS = [
-  { id: "home-1", label: "Home sidebar — top", note: "Top of the homepage sidebar" },
-  { id: "home-2", label: "Home sidebar — bottom", note: "Bottom of the homepage sidebar" },
+  { id: "home-1", label: "Home sidebar — slot 1", note: "Homepage sidebar, position 1" },
+  { id: "home-2", label: "Home sidebar — slot 2", note: "Homepage sidebar, position 2" },
+  { id: "home-3", label: "Home sidebar — slot 3", note: "Homepage sidebar, position 3" },
+  { id: "home-4", label: "Home sidebar — slot 4", note: "Homepage sidebar, position 4" },
+  { id: "home-5", label: "Home sidebar — slot 5", note: "Homepage sidebar, position 5" },
+  { id: "home-6", label: "Home sidebar — slot 6", note: "Homepage sidebar, position 6" },
+  { id: "home-7", label: "Home sidebar — slot 7", note: "Homepage sidebar, position 7" },
+  { id: "home-8", label: "Home sidebar — slot 8", note: "Homepage sidebar, position 8" },
 ];
 const NU_AD_FORMATS = ["photo", "video", "audio", "text", "link"];
 
