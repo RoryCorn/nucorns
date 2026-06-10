@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, Link, Navigate, useSearchParams } from "react-router-dom";
 import Icon from "../components/Icon";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
@@ -16,19 +16,43 @@ function autogrow(el) { if (!el) return; el.style.height = "auto"; el.style.heig
 export default function WritePage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const editId = params.get("edit");
+
   const [cat, setCat] = useState(WR_CATS[0]);
   const [title, setTitle] = useState("");
   const [dek, setDek] = useState("");
   const [body, setBody] = useState("");
   const [coverGrad, setCoverGrad] = useState(WR_COVERS[0]);
   const [coverSrc, setCoverSrc] = useState(null);
-  const [photos, setPhotos] = useState([]); // {src, kind}
-  const [status, setStatus] = useState("idle"); // idle|checking|blocked
-  const [alert, setAlert] = useState(null); // {kind, title, msg, cats}
+  const [photos, setPhotos] = useState([]);
+  const [status, setStatus] = useState("idle"); // idle|checking|blocked|loading
+  const [alert, setAlert] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const coverRef = useRef(null);
   const photoRef = useRef(null);
 
-  if (authLoading) return null;
+  useEffect(() => {
+    if (!editId) return;
+    setStatus("loading");
+    api.get(`/posts/${editId}`).then(({ post }) => {
+      if (!post) return;
+      setCat(WR_CATS.includes(post.category) ? post.category : WR_CATS[0]);
+      setTitle(post.title || "");
+      setDek(post.dek || "");
+      setBody(Array.isArray(post.body) ? post.body.join("\n\n") : post.body || "");
+      if (post.cover && post.cover.src) {
+        setCoverSrc(post.cover.src);
+      } else if (Array.isArray(post.cover) && post.cover.length) {
+        const match = WR_COVERS.find((g) => g[0] === post.cover[0] && g[1] === post.cover[1]);
+        setCoverGrad(match || WR_COVERS[0]);
+      }
+      setPhotos(Array.isArray(post.media) ? post.media : []);
+      setStatus("idle");
+    }).catch(() => setStatus("idle"));
+  }, [editId]);
+
+  if (authLoading || status === "loading") return null;
   if (!user) return <Navigate to="/welcome" replace />;
 
   async function onCover(file) {
@@ -41,6 +65,7 @@ export default function WritePage() {
       setAlert({ kind: "photo", title: "Cover can't be used", msg: e.message });
     }
   }
+
   async function onPhotos(files) {
     setAlert(null);
     for (const f of Array.from(files)) {
@@ -52,6 +77,7 @@ export default function WritePage() {
       }
     }
   }
+
   function removePhoto(i) { setPhotos((p) => p.filter((_, idx) => idx !== i)); }
 
   const canPublish = title.trim().length >= 4 && body.trim().length >= 12;
@@ -60,22 +86,35 @@ export default function WritePage() {
     if (!canPublish || status === "checking") return;
     setAlert(null); setStatus("checking");
     try {
-      const res = await api.post("/posts", {
+      const payload = {
         category: cat,
         title: title.trim(),
         dek: dek.trim(),
         body: body.trim(),
         cover: coverSrc ? { src: coverSrc } : coverGrad,
         media: photos,
-      });
+      };
+      const res = editId
+        ? await api.patch(`/posts/${editId}`, payload)
+        : await api.post("/posts", payload);
       navigate(`/post/${res.post.id}`);
     } catch (e) {
       setStatus("blocked");
       if (e.data && e.data.error === "blocked") {
         setAlert({ kind: "text", title: e.data.title || "This needs an edit before it goes live", msg: e.data.message, cats: e.data.categories });
       } else {
-        setAlert({ kind: "text", title: "Couldn't publish", msg: e.message });
+        setAlert({ kind: "text", title: "Couldn't save", msg: e.message });
       }
+    }
+  }
+
+  async function deleteStory() {
+    try {
+      await api.del(`/posts/${editId}`);
+      navigate(`/u/${user.handle}`);
+    } catch (e) {
+      setAlert({ kind: "text", title: "Couldn't delete", msg: e.message });
+      setConfirmDelete(false);
     }
   }
 
@@ -88,15 +127,31 @@ export default function WritePage() {
       <header className="nu-nav">
         <div className="nu-nav-inner">
           <Link className="nu-wordmark" to={`/u/${user.handle}`}><img className="nu-logo-img" src="/nucorns-mark-circle.png" alt="" />nu<span>corns</span></Link>
-          <div className="wr-navmid">New story</div>
+          <div className="wr-navmid">{editId ? "Edit story" : "New story"}</div>
           <div className="nu-nav-right">
-            <Link className="nu-btn-ghost" to={`/u/${user.handle}`}>Cancel</Link>
+            {editId && (
+              <button className="nu-btn-ghost nu-btn-danger" onClick={() => setConfirmDelete(true)}>Delete</button>
+            )}
+            <Link className="nu-btn-ghost" to={editId ? `/post/${editId}` : `/u/${user.handle}`}>Cancel</Link>
             <button className="nu-btn-post" disabled={!canPublish || status === "checking"} onClick={publish}>
-              {status === "checking" ? <><span className="wr-spin" />Checking…</> : <><Icon name="sparkle" size={16} />Publish</>}
+              {status === "checking" ? <><span className="wr-spin" />Checking…</> : <><Icon name="sparkle" size={16} />{editId ? "Save" : "Publish"}</>}
             </button>
           </div>
         </div>
       </header>
+
+      {confirmDelete && (
+        <div className="nu-confirm-overlay">
+          <div className="nu-confirm">
+            <h3>Delete this story?</h3>
+            <p>This removes the story, all its comments, and any uploaded media. This can't be undone.</p>
+            <div className="nu-confirm-btns">
+              <button className="nu-btn-ghost" onClick={() => setConfirmDelete(false)}>Keep it</button>
+              <button className="nu-btn-post nu-btn-delete" onClick={deleteStory}>Yes, delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="wr-main">
         {alert && (

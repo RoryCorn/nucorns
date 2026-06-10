@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Nav from "../components/Nav";
 import Article from "../components/Article";
 import Lightbox from "../components/Lightbox";
@@ -15,6 +15,7 @@ function countAll(list) {
 
 export default function ConversationPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { appearance } = useAppearance();
   const [post, setPost] = useState(null);
@@ -85,6 +86,17 @@ export default function ConversationPage() {
       <Nav />
       <main className="nu-main">
         <Article post={post} showHero={appearance.showHero} />
+
+        {post.mine && (
+          <div className="nu-post-actions">
+            <Link className="nu-btn-ghost" to={`/write?edit=${post.id}`}>Edit story</Link>
+            <button className="nu-btn-ghost nu-btn-danger" onClick={async () => {
+              if (!window.confirm("Delete this story and all its comments? This can't be undone.")) return;
+              await api.del(`/posts/${post.id}`);
+              navigate("/");
+            }}>Delete story</button>
+          </div>
+        )}
 
         <section className="nu-convo">
           <div className="nu-convo-head">
