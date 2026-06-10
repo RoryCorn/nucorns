@@ -28,8 +28,8 @@ export default function HomePage() {
         <aside className="hm-sidebar">
           <div className="hm-sidebar-inner">
             <div className="hm-sidebar-label">Sponsored</div>
-            <AdSlot slotId="home-1" house={false} />
-            <AdSlot slotId="home-2" house={false} />
+            <AdSlot slotId="home-1" />
+            <AdSlot slotId="home-2" />
           </div>
         </aside>
       </div>

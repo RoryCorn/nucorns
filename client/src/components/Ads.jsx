@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import Icon from "./Icon";
 import { api } from "../lib/api";
 
@@ -32,7 +31,7 @@ export function AdUnit({ ad }) {
   return <Wrap><div className="ad-body ad-textad"><div className="ad-head">{ad.headline}</div>{ad.body && <div className="ad-sub">{ad.body}</div>}{ctaBtn}</div></Wrap>;
 }
 
-export function AdSlot({ slotId, house = true }) {
+export function AdSlot({ slotId }) {
   const [ad, setAd] = useState(undefined);
   useEffect(() => {
     let live = true;
@@ -40,14 +39,6 @@ export function AdSlot({ slotId, house = true }) {
     return () => { live = false; };
   }, [slotId]);
 
-  if (ad === undefined) return null;
-  if (ad) return <div className="ad-slot"><AdUnit ad={ad} /></div>;
-  if (!house) return null;
-  return (
-    <Link className="ad-house" to="/advertising">
-      <div className="ad-house-ic"><Icon name="megaphone" size={20} /></div>
-      <div className="ad-house-tx"><strong>Your brand here</strong>Reach nucorns creators — advertise with us</div>
-      <Icon name="chevron" size={18} />
-    </Link>
-  );
+  if (!ad) return null;
+  return <div className="ad-slot"><AdUnit ad={ad} /></div>;
 }
