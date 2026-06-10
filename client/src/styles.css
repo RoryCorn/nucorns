@@ -671,7 +671,8 @@ input, textarea { font-family: inherit; }
 
 .ad-cols { display: grid; grid-template-columns: 1.55fr 1fr; gap: 26px; align-items: start; }
 .ad-card { background: var(--surface); border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px); padding: 26px; box-shadow: var(--shadow-soft); }
-.ad-card-h { font-size: 21px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 20px; }
+.ad-card-h { font-size: 21px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 8px; }
+.ad-card-sub { font-size: 15px; color: var(--muted); line-height: 1.55; margin: 0 0 22px; }
 
 .ad-form { display: flex; flex-direction: column; gap: 16px; }
 .ad-field { display: flex; flex-direction: column; gap: 7px; }

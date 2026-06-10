@@ -9,9 +9,8 @@ const { upload, fileUrl } = require("../lib/uploads");
 const router = express.Router();
 
 const NU_AD_SLOTS = [
-  { id: "convo", label: "Conversation — in-thread", note: "Inside article discussions" },
-  { id: "feed", label: "Profile — story feed", note: "Between stories on creator pages" },
-  { id: "story", label: "Story footer", note: "Below a published story" },
+  { id: "home-1", label: "Home sidebar — top", note: "Top of the homepage sidebar" },
+  { id: "home-2", label: "Home sidebar — bottom", note: "Bottom of the homepage sidebar" },
 ];
 const NU_AD_FORMATS = ["photo", "video", "audio", "text", "link"];
 

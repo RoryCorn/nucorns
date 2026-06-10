@@ -131,7 +131,7 @@ export default function ProfilePage() {
 
         {isMine && <MatchSection />}
 
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦</footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦ · <Link to="/advertising">Advertise</Link></footer>
       </main>
     </div>
   );

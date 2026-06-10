@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Icon from "../components/Icon";
 import { AdUnit } from "../components/Ads";
@@ -20,6 +20,84 @@ function AdNav({ admin }) {
   );
 }
 
+function InquiryForm() {
+  const blank = { company: "", contact: "", what: "", timing: "" };
+  const [d, setD] = useState(blank);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const set = (k, v) => setD((o) => ({ ...o, [k]: v }));
+  const ok = d.company.trim() && d.contact.trim() && d.what.trim();
+
+  async function submit() {
+    if (!ok || busy) return;
+    setErr(""); setBusy(true);
+    try {
+      await api.post("/ads/requests", {
+        company: d.company.trim(),
+        contact: d.contact.trim(),
+        format: "text",
+        headline: d.what.trim().slice(0, 70),
+        body: d.what.trim(),
+        url: "",
+        cta: "Learn more",
+        mediaSrc: null,
+        preferredSlot: "home-1",
+        note: d.timing.trim(),
+      });
+      setDone(true);
+    } catch (e) {
+      setErr(e.message || "Couldn't send your inquiry. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (done) return (
+    <div className="ad-success">
+      <div className="ad-success-ic"><Icon name="check" size={26} /></div>
+      <h3>Inquiry received</h3>
+      <p>Our team will reach out to <strong>{d.contact}</strong> to discuss pricing, available placements, and your preferred campaign start and end dates.</p>
+      <button className="nu-btn-post" onClick={() => { setD(blank); setDone(false); }}>Submit another inquiry</button>
+    </div>
+  );
+
+  return (
+    <div className="ad-form">
+      <div className="ad-field-row">
+        <label className="ad-field">
+          <span className="su-label">Company or brand name</span>
+          <input className="su-input" value={d.company} onChange={(e) => set("company", e.target.value)} placeholder="e.g. Aperture Film Co." />
+        </label>
+        <label className="ad-field">
+          <span className="su-label">Your email address</span>
+          <input className="su-input" type="email" value={d.contact} onChange={(e) => set("contact", e.target.value)} placeholder="you@yourbrand.com" />
+        </label>
+      </div>
+
+      <label className="ad-field">
+        <span className="su-label">What are you advertising?</span>
+        <textarea className="su-input su-textarea" rows={3} maxLength={400} value={d.what}
+          onChange={(e) => set("what", e.target.value)}
+          placeholder="Briefly describe your product, service, or campaign — what you want to promote and who it's for." />
+      </label>
+
+      <label className="ad-field">
+        <span className="su-label">Preferred campaign timing (optional)</span>
+        <input className="su-input" value={d.timing} onChange={(e) => set("timing", e.target.value)}
+          placeholder="e.g. starting next month, 4-week run, specific dates, flexible — anything helps" />
+      </label>
+
+      {err && <span className="su-err"><Icon name="close" size={14} />{err}</span>}
+
+      <button className="nu-btn-post ad-submit" disabled={!ok || busy} onClick={submit}>
+        {busy ? <><span className="wr-spin" />Sending…</> : <>Send inquiry<Icon name="send" size={15} /></>}
+      </button>
+      <p className="ad-fineprint"><Icon name="lock" size={13} />Your inquiry goes directly to the nucorns team. We'll be in touch to discuss everything before anything goes live.</p>
+    </div>
+  );
+}
+
 function FormatFields({ d, set, formats, onPhoto, photoErr }) {
   return (
     <>
@@ -33,17 +111,14 @@ function FormatFields({ d, set, formats, onPhoto, photoErr }) {
           ))}
         </div>
       </div>
-
       <label className="ad-field"><span className="su-label">Headline</span>
         <input className="su-input" maxLength={70} value={d.headline} onChange={(e) => set("headline", e.target.value)} placeholder="A short, honest hook" />
       </label>
-
       {(d.format === "text" || d.format === "photo" || d.format === "video" || d.format === "audio") && (
         <label className="ad-field"><span className="su-label">Body {d.format !== "text" ? "(optional)" : ""}</span>
           <textarea className="su-input su-textarea" rows={2} maxLength={160} value={d.body} onChange={(e) => set("body", e.target.value)} placeholder="One or two lines about the offer." />
         </label>
       )}
-
       {d.format === "photo" && (
         <div className="ad-field"><span className="su-label">Image</span>
           <div className="ad-uploadrow">
@@ -55,13 +130,11 @@ function FormatFields({ d, set, formats, onPhoto, photoErr }) {
           {photoErr && <span className="su-err"><Icon name="close" size={14} />{photoErr}</span>}
         </div>
       )}
-
       {(d.format === "video" || d.format === "audio") && (
         <label className="ad-field"><span className="su-label">{d.format === "video" ? "Video" : "Audio"} URL</span>
           <input className="su-input" value={d.mediaSrc || ""} onChange={(e) => set("mediaSrc", e.target.value)} placeholder={"https://… ." + (d.format === "video" ? "mp4" : "mp3")} />
         </label>
       )}
-
       {(d.format === "link" || d.format === "photo" || d.format === "video" || d.format === "text" || d.format === "audio") && (
         <div className="ad-field-row">
           <label className="ad-field"><span className="su-label">Link URL {d.format === "link" ? "" : "(optional)"}</span>
@@ -76,95 +149,8 @@ function FormatFields({ d, set, formats, onPhoto, photoErr }) {
   );
 }
 
-function CompanyForm({ slots, formats }) {
-  const blank = { company: "", contact: "", format: "photo", headline: "", body: "", url: "", cta: "Learn more", mediaSrc: null, preferredSlot: "convo", note: "" };
-  const [d, setD] = useState(blank);
-  const [photoErr, setPhotoErr] = useState("");
-  const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
-  const set = (k, v) => setD((o) => ({ ...o, [k]: v }));
-
-  async function onPhoto(f) {
-    if (!f) return;
-    setPhotoErr("");
-    try {
-      const r = await api.upload("/ads/media", f);
-      set("mediaSrc", r.url);
-    } catch (e) {
-      setPhotoErr(e.message);
-    }
-  }
-  const ok = d.company.trim() && d.contact.trim() && d.headline.trim();
-
-  async function submit() {
-    if (!ok || busy) return;
-    setErr(""); setBusy(true);
-    try {
-      await api.post("/ads/requests", {
-        company: d.company.trim(), contact: d.contact.trim(), format: d.format,
-        headline: d.headline.trim(), body: d.body.trim(), url: d.url.trim(),
-        cta: d.cta.trim() || "Learn more", mediaSrc: d.mediaSrc,
-        preferredSlot: d.preferredSlot, note: d.note.trim(),
-      });
-      setDone(true);
-    } catch (e) {
-      setErr(e.message || "Couldn't send your request.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (done) return (
-    <div className="ad-success">
-      <div className="ad-success-ic"><Icon name="check" size={26} /></div>
-      <h3>Request sent to the nucorns team</h3>
-      <p>We review every submission against our community guidelines. You'll hear back at <strong>{d.contact}</strong>. Placement is set by our admin once approved.</p>
-      <button className="nu-btn-post" onClick={() => { setD(blank); setDone(false); }}>Submit another</button>
-    </div>
-  );
-
-  return (
-    <div className="ad-form">
-      <div className="ad-field-row">
-        <label className="ad-field"><span className="su-label">Company / brand</span>
-          <input className="su-input" value={d.company} onChange={(e) => set("company", e.target.value)} placeholder="e.g. Aperture Film Co." />
-        </label>
-        <label className="ad-field"><span className="su-label">Contact email</span>
-          <input className="su-input" value={d.contact} onChange={(e) => set("contact", e.target.value)} placeholder="you@brand.com" />
-        </label>
-      </div>
-
-      <FormatFields d={d} set={set} formats={formats} onPhoto={onPhoto} photoErr={photoErr} />
-
-      <div className="ad-field-row">
-        <label className="ad-field"><span className="su-label">Preferred placement</span>
-          <select className="su-input" value={d.preferredSlot} onChange={(e) => set("preferredSlot", e.target.value)}>
-            {slots.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-          </select>
-        </label>
-        <label className="ad-field"><span className="su-label">Note to admin (optional)</span>
-          <input className="su-input" value={d.note} onChange={(e) => set("note", e.target.value)} placeholder="Budget, timing, anything else" />
-        </label>
-      </div>
-
-      {err && <span className="su-err"><Icon name="close" size={14} />{err}</span>}
-
-      <div className="ad-preview-wrap">
-        <span className="su-label">Live preview</span>
-        <AdUnit ad={d} />
-      </div>
-
-      <button className="nu-btn-post ad-submit" disabled={!ok || busy} onClick={submit}>
-        {busy ? <><span className="wr-spin" />Sending…</> : <>Send to nucorns<Icon name="send" size={15} /></>}
-      </button>
-      <p className="ad-fineprint"><Icon name="lock" size={13} />Only the nucorns admin can place ads on the site. Submissions are reviewed for nudity, hate & harassment.</p>
-    </div>
-  );
-}
-
 function AdminCreate({ slots, formats, onCreated }) {
-  const blank = { company: "", format: "photo", headline: "", body: "", url: "", cta: "Learn more", mediaSrc: null, slot: "convo", live: true };
+  const blank = { company: "", format: "photo", headline: "", body: "", url: "", cta: "Learn more", mediaSrc: null, slot: "home-1", live: true };
   const [d, setD] = useState(blank);
   const [photoErr, setPhotoErr] = useState("");
   const [err, setErr] = useState("");
@@ -174,12 +160,8 @@ function AdminCreate({ slots, formats, onCreated }) {
   async function onPhoto(f) {
     if (!f) return;
     setPhotoErr("");
-    try {
-      const r = await api.upload("/ads/media", f);
-      set("mediaSrc", r.url);
-    } catch (e) {
-      setPhotoErr(e.message);
-    }
+    try { const r = await api.upload("/ads/media", f); set("mediaSrc", r.url); }
+    catch (e) { setPhotoErr(e.message); }
   }
   const ok = d.company.trim() && d.headline.trim();
 
@@ -187,18 +169,10 @@ function AdminCreate({ slots, formats, onCreated }) {
     if (!ok || busy) return;
     setErr(""); setBusy(true);
     try {
-      await api.post("/ads", {
-        company: d.company.trim(), format: d.format, headline: d.headline.trim(),
-        body: d.body.trim(), url: d.url.trim(), cta: d.cta.trim() || "Learn more",
-        mediaSrc: d.mediaSrc, slot: d.slot, live: d.live,
-      });
-      setD(blank);
-      onCreated();
-    } catch (e) {
-      setErr(e.message || "Couldn't create that ad.");
-    } finally {
-      setBusy(false);
-    }
+      await api.post("/ads", { company: d.company.trim(), format: d.format, headline: d.headline.trim(), body: d.body.trim(), url: d.url.trim(), cta: d.cta.trim() || "Learn more", mediaSrc: d.mediaSrc, slot: d.slot, live: d.live });
+      setD(blank); onCreated();
+    } catch (e) { setErr(e.message || "Couldn't create that ad."); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -255,26 +229,26 @@ function AdminConsole({ slots, formats }) {
       <div className="ad-admin-top">
         <div>
           <h2 className="ad-admin-h">Ad control center</h2>
-          <p className="ad-admin-sub">Admin-only. Review brand requests and control exactly what runs in each slot.</p>
+          <p className="ad-admin-sub">Admin-only. Review inquiries and control exactly what runs in each slot.</p>
         </div>
       </div>
 
       <div className="ad-tabs">
-        {[["requests", "Requests" + (pending.length ? " (" + pending.length + ")" : "")], ["placements", "Placements"], ["create", "Create ad"]].map(([id, label]) => (
+        {[["requests", "Inquiries" + (pending.length ? " (" + pending.length + ")" : "")], ["placements", "Placements"], ["create", "Create ad"]].map(([id, label]) => (
           <button key={id} className={"ad-tab" + (tab === id ? " is-on" : "")} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
 
       {tab === "requests" && (
         <div className="ad-reqs">
-          {!loading && reqs.length === 0 && <div className="ad-empty">No brand requests yet. Share the advertising page with companies.</div>}
+          {!loading && reqs.length === 0 && <div className="ad-empty">No inquiries yet.</div>}
           {reqs.map((r) => (
             <div className="ad-reqcard" key={r.id} data-status={r.status}>
               <div className="ad-reqcard-main">
-                <div className="ad-reqcard-head"><strong>{r.company}</strong><span className="ad-chip">{r.format}</span><span className={"ad-status ad-status-" + r.status}>{r.status}</span></div>
+                <div className="ad-reqcard-head"><strong>{r.company}</strong><span className={"ad-status ad-status-" + r.status}>{r.status}</span></div>
                 <div className="ad-reqcard-hl">{r.headline}</div>
                 {r.body && <div className="ad-reqcard-body">{r.body}</div>}
-                <div className="ad-reqcard-meta">{r.contact} · wants {(slots.find((s) => s.id === r.preferredSlot) || {}).label}{r.note ? " · " + r.note : ""}</div>
+                <div className="ad-reqcard-meta">{r.contact}{r.note ? " · Timing: " + r.note : ""}</div>
               </div>
               {r.status === "pending" && (
                 <div className="ad-reqcard-actions">
@@ -318,7 +292,7 @@ function AdminConsole({ slots, formats }) {
                 <button className="ad-invrow-btn ad-del" onClick={() => removeAd(a.id)}><Icon name="close" size={14} /></button>
               </div>
             ))}
-            {ads.length === 0 && <div className="ad-empty">No ads yet — approve a request or create one.</div>}
+            {ads.length === 0 && <div className="ad-empty">No ads yet — approve an inquiry or create one directly.</div>}
           </div>
         </div>
       )}
@@ -347,30 +321,28 @@ export default function AdvertisingPage() {
           <>
             <section className="ad-hero">
               <span className="ad-hero-tag"><Icon name="megaphone" size={14} />Advertise with nucorns</span>
-              <h1>Put your brand in front of people who make things.</h1>
-              <p>nucorns creators shoot, write, and build for engaged audiences. Submit an ad and our team places it where it fits — photo, video, audio, text, or link.</p>
-              <div className="ad-hero-stats">
-                <span><strong>{slots.length || 3}</strong> placement slots</span>
-                <span><strong>{formats.length || 5}</strong> media formats</span>
-                <span><strong>100%</strong> human-reviewed</span>
-              </div>
+              <h1>Reach an audience of creators, makers, and storytellers.</h1>
+              <p>nucorns is a community of photographers, writers, and builders with engaged, curious readers. Send us an inquiry and our team will personally reach out to discuss pricing, placement, and the start and end dates that work for your campaign.</p>
             </section>
 
             <section className="ad-cols">
               <div className="ad-card">
-                <h2 className="ad-card-h">Submit your ad</h2>
-                <CompanyForm slots={slots} formats={formats} />
+                <h2 className="ad-card-h">Get in touch</h2>
+                <p className="ad-card-sub">Fill in the form below and a member of the nucorns team will contact you to discuss everything — no commitment required.</p>
+                <InquiryForm />
               </div>
               <aside className="ad-aside">
                 <h3>How it works</h3>
                 <ol className="ad-steps">
-                  <li><strong>Submit</strong> your creative and pick a preferred placement.</li>
-                  <li><strong>We review</strong> it against community guidelines — no nudity, hate, or harassment.</li>
-                  <li><strong>Admin places</strong> approved ads into live slots and controls timing.</li>
+                  <li><strong>Send an inquiry</strong> — tell us about your brand and what you want to promote.</li>
+                  <li><strong>We reach out</strong> — our team contacts you to discuss pricing and the details of your campaign.</li>
+                  <li><strong>Agree on a schedule</strong> — we confirm your campaign start date, end date, and placement together.</li>
+                  <li><strong>Go live</strong> — your ad is placed by our admin and runs exactly as agreed.</li>
                 </ol>
                 <div className="ad-aside-where">
                   <h4>Where ads appear</h4>
-                  {slots.map((s) => <div className="ad-aside-slot" key={s.id}><Icon name="check" size={14} /><div><strong>{s.label}</strong>{s.note}</div></div>)}
+                  <div className="ad-aside-slot"><Icon name="check" size={14} /><div><strong>Homepage sidebar — top</strong>Seen by every visitor to nucorns.com</div></div>
+                  <div className="ad-aside-slot"><Icon name="check" size={14} /><div><strong>Homepage sidebar — bottom</strong>A second placement below the first</div></div>
                 </div>
               </aside>
             </section>
