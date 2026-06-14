@@ -95,12 +95,34 @@ input, textarea { font-family: inherit; }
 /* ---------- Home feed + sidebar ---------- */
 .hm-wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: start; }
 .hm-feed { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-.hm-sidebar { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 16px; }
-.hm-sidebar-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+.hm-sidebar {
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 108px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
+}
+.hm-sidebar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.hm-sidebar-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-bottom: 8px; padding-top: 2px; flex-shrink: 0; }
 .hm-sidebar-inner { display: flex; flex-direction: column; gap: 14px; }
+
+/* Compact ad cards in sidebar so more fit without scrolling */
+.hm-sidebar .ad-unit { font-size: 13.5px; }
+.hm-sidebar .ad-photo img,
+.hm-sidebar .ad-photo video { max-height: 160px; object-fit: cover; width: 100%; }
+.hm-sidebar .ad-body { padding: 12px 14px; }
+.hm-sidebar .ad-head { font-size: 14px; }
+.hm-sidebar .ad-sub { font-size: 12.5px; margin-top: 4px; }
+.hm-sidebar .ad-cta { padding: 7px 13px; font-size: 12.5px; margin-top: 9px; }
+
 @media (max-width: 780px) {
   .hm-wrap { grid-template-columns: 1fr; }
-  .hm-sidebar { position: static; }
+  .hm-sidebar { position: static; max-height: none; overflow: visible; }
 }
 
 /* ---------- Article ---------- */
