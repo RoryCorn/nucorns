@@ -10,6 +10,13 @@ const { sendAdInquiryEmail, sendCreativeFormEmail } = require("../lib/mailer");
 
 const router = express.Router();
 
+function safeUrl(url) {
+  const u = String(url || "").trim();
+  if (!u) return "";
+  if (/^https?:\/\//i.test(u)) return u;
+  return "https://" + u;
+}
+
 const NU_AD_SLOTS = [
   { id: "home-1", label: "Home sidebar — slot 1", note: "Homepage sidebar, position 1" },
   { id: "home-2", label: "Home sidebar — slot 2", note: "Homepage sidebar, position 2" },
@@ -101,7 +108,7 @@ router.post("/requests", async (req, res) => {
     VALUES (@id, @company, @contact, @format, @headline, @body, @url, @cta, @media_src, @preferred_slot, @note, 'pending', @created_at)
   `).run({
     id, company, contact, format, headline,
-    body: String(d.body || "").trim(), url: String(d.url || "").trim(),
+    body: String(d.body || "").trim(), url: safeUrl(d.url),
     cta: String(d.cta || "").trim() || "Learn more",
     media_src: d.mediaSrc || null,
     preferred_slot: NU_AD_SLOTS.some((s) => s.id === d.preferredSlot) ? d.preferredSlot : "home-1",
@@ -170,7 +177,7 @@ router.post("/creative/:token", upload.single("file"), async (req, res) => {
     format,
     headline,
     String(d.body || "").trim(),
-    String(d.url || "").trim(),
+    safeUrl(d.url),
     String(d.cta || "").trim() || "Learn more",
     mediaSrc,
     req.params.token,
@@ -229,7 +236,7 @@ router.post("/requests/:id/place", requireAdmin, (req, res) => {
     VALUES (@id, @company, @format, @headline, @body, @url, @cta, @media_src, @slot, @live, @created_at)
   `).run({
     id, company: r.company, format: r.format, headline: r.headline,
-    body: r.body, url: r.url, cta: r.cta, media_src: r.media_src,
+    body: r.body, url: safeUrl(r.url), cta: r.cta, media_src: r.media_src,
     slot, live: live ? 1 : 0, created_at: Date.now(),
   });
   db.prepare("UPDATE ad_requests SET status = 'placed' WHERE id = ?").run(r.id);
@@ -254,7 +261,7 @@ router.post("/", requireAdmin, (req, res) => {
   db.prepare(`
     INSERT INTO ads (id, company, format, headline, body, url, cta, media_src, slot, live, created_at)
     VALUES (@id, @company, @format, @headline, @body, @url, @cta, @media_src, @slot, @live, @created_at)
-  `).run({ id, company, format, headline, body: String(d.body || "").trim(), url: String(d.url || "").trim(), cta: String(d.cta || "").trim() || "Learn more", media_src: d.mediaSrc || null, slot, live, created_at: Date.now() });
+  `).run({ id, company, format, headline, body: String(d.body || "").trim(), url: safeUrl(d.url), cta: String(d.cta || "").trim() || "Learn more", media_src: d.mediaSrc || null, slot, live, created_at: Date.now() });
   res.status(201).json({ ad: serializeAd(db.prepare("SELECT * FROM ads WHERE id = ?").get(id)) });
 });
 

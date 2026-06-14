@@ -62,12 +62,19 @@ export function VideoTile({ m }) {
 }
 
 /* ---------- Link card ---------- */
+function safeUrl(url) {
+  if (!url) return "#";
+  const u = url.trim();
+  if (/^https?:\/\//i.test(u)) return u;
+  return "https://" + u;
+}
 export function LinkCard({ m }) {
+  const href = safeUrl(m.url);
   let domain = m.site;
-  try { if (!domain) domain = new URL(m.url).hostname.replace(/^www\./, ""); } catch (e) { domain = m.url; }
+  try { if (!domain) domain = new URL(href).hostname.replace(/^www\./, ""); } catch (e) { domain = m.url; }
   const title = m.title || m.url;
   return (
-    <a className="nu-linkcard" href={m.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+    <a className="nu-linkcard" href={href} target="_blank" rel="noreferrer noopener" onClick={(e) => e.stopPropagation()}>
       <div className="nu-linkcard-thumb"><Icon name="link" size={22} /></div>
       <div className="nu-linkcard-body">
         <div className="nu-linkcard-site"><span className="nu-fav" />{domain}</div>

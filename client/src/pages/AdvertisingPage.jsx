@@ -321,7 +321,7 @@ function AdminConsole({ slots, formats }) {
                     <span className="ad-chip">{r.format}</span>
                     <strong>{r.headline}</strong>
                     {r.body && <span>{r.body}</span>}
-                    {r.url && <a href={r.url} target="_blank" rel="noreferrer" className="acp-req-link">{r.url}</a>}
+                    {r.url && <a href={/^https?:\/\//i.test(r.url) ? r.url : "https://" + r.url} target="_blank" rel="noreferrer noopener" className="acp-req-link">{r.url}</a>}
                   </div>
                 )}
               </div>
