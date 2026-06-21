@@ -46,7 +46,7 @@ export default function ProfilePage() {
   return (
     <div className="nu-root">
       <Nav />
-      <main className="pf-main">
+      <main className="pf-main" id="main-content">
         <div className="pf-banner" style={{ background: banner }}>
           <span className="nu-ph-stripes" />
         </div>
@@ -134,7 +134,7 @@ export default function ProfilePage() {
 
         {isMine && <MatchSection />}
 
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦ · <Link to="/advertising">Advertise</Link></footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦ · <Link to="/advertising">Advertise</Link> · <Link to="/privacy">Privacy</Link></footer>
       </main>
     </div>
   );

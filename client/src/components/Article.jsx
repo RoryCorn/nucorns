@@ -63,9 +63,9 @@ export default function Article({ post, showHero = true }) {
       )}
       <div className="nu-postbar">
         <Reaction big targetType="post" targetId={post.id} counts={post.reactions} mine={post.myReaction} />
-        <button className="nu-pill"><Icon name="reply" size={19} /><span>{nuFmt(post.shares)}</span></button>
-        <button className="nu-pill" onClick={handleShare}><Icon name="share" size={18} /><span>{copied ? "Copied!" : "Share"}</span></button>
-        <button className="nu-pill nu-pill-bm"><Icon name="bookmark" size={18} /></button>
+        <button className="nu-pill" aria-label={`${nuFmt(post.shares)} shares`}><Icon name="reply" size={19} /><span>{nuFmt(post.shares)}</span></button>
+        <button className="nu-pill" onClick={handleShare} aria-label="Share this story"><Icon name="share" size={18} /><span>{copied ? "Copied!" : "Share"}</span></button>
+        <button className="nu-pill nu-pill-bm" aria-label="Bookmark this story"><Icon name="bookmark" size={18} /></button>
       </div>
     </article>
   );

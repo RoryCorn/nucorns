@@ -25,7 +25,7 @@ export default function HomePage() {
         </aside>
 
         <div className="hm-wrap">
-          <main className="hm-feed">
+          <main className="hm-feed" id="main-content">
             {loading && <p style={{ color: "var(--muted)" }}>Loading…</p>}
             {!loading && posts.length === 0 && <p style={{ color: "var(--muted)" }}>No stories yet — be the first to write one.</p>}
             {posts.map((p, i) => (
@@ -41,7 +41,7 @@ export default function HomePage() {
           </aside>
         </div>
       </div>
-      <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦</footer>
+      <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦ · <Link to="/privacy">Privacy</Link></footer>
     </div>
   );
 }

@@ -254,7 +254,7 @@ function AdminConsole({ slots, formats }) {
   return (
     <div className="ad-admin">
       <div className="ad-admin-top">
-        <h2 className="ad-admin-h">Ad Control Panel</h2>
+        <h1 className="ad-admin-h">Ad Control Panel</h1>
         <p className="ad-admin-sub">You have full control over what runs, where, and when.</p>
       </div>
 
@@ -419,7 +419,7 @@ export default function AdvertisingPage() {
   return (
     <div className="nu-root">
       <AdNav admin={isAdmin} />
-      <main className="ad-main">
+      <main className="ad-main" id="main-content">
         {!isAdmin && (
           <>
             <section className="ad-hero">
@@ -454,7 +454,7 @@ export default function AdvertisingPage() {
 
         {isAdmin && <AdminConsole slots={slots} formats={formats} />}
 
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · advertising that respects the room ✦</footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · advertising that respects the room ✦ · <Link to="/privacy">Privacy</Link></footer>
       </main>
     </div>
   );

@@ -155,7 +155,7 @@ function SignupFlow({ onDone, onSwitchToLogin }) {
                   {AV_PRESETS.map((g, i) => (
                     <button key={i} className={"su-swatch" + (p.avatarGrad === g ? " is-on" : "")}
                       style={{ background: `linear-gradient(135deg, ${g[0]}, ${g[1]})` }}
-                      onClick={() => set("avatarGrad", g)} />
+                      onClick={() => set("avatarGrad", g)} aria-label={`Avatar color ${i + 1}`} />
                   ))}
                 </div>
               </Field>
@@ -164,7 +164,7 @@ function SignupFlow({ onDone, onSwitchToLogin }) {
                   {BN_PRESETS.map((g, i) => (
                     <button key={i} className={"su-swatch su-swatch-wide" + (p.bannerGrad === g ? " is-on" : "")}
                       style={{ background: `linear-gradient(120deg, ${g[0]}, ${g[1]} 55%, ${g[2]})` }}
-                      onClick={() => set("bannerGrad", g)} />
+                      onClick={() => set("bannerGrad", g)} aria-label={`Banner color ${i + 1}`} />
                   ))}
                 </div>
               </Field>
@@ -213,7 +213,7 @@ function SignupFlow({ onDone, onSwitchToLogin }) {
         </div>
 
         <div className="su-nav">
-          {stepErr && <span className="su-err su-err-nav"><Icon name="close" size={14} />{stepErr}</span>}
+          {stepErr && <span className="su-err su-err-nav" role="alert"><Icon name="close" size={14} />{stepErr}</span>}
           {step > 0 ? <button className="nu-btn-ghost" onClick={back}>Back</button> : <span />}
           <button className="nu-btn-post su-continue" disabled={!canNext || busy} onClick={next}>
             {busy ? <><span className="wr-spin" />Creating…</> : step === STEPS.length - 1 ? <>Enter nucorns<Icon name="sparkle" size={16} /></> : "Continue"}

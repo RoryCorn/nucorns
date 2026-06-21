@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import Nav from "../components/Nav";
 import Icon from "../components/Icon";
 import { Avatar } from "../components/Primitives";
@@ -71,22 +71,22 @@ function PasswordForm() {
 
   return (
     <form className="set-form" onSubmit={save}>
-      {done && <p className="set-pw-ok"><Icon name="check" size={15} />Password updated successfully.</p>}
+      {done && <p className="set-pw-ok" role="status"><Icon name="check" size={15} />Password updated successfully.</p>}
       <div className="set-row">
-        <label className="set-row-label">Current password</label>
-        <input className="su-input" type="password" value={current} placeholder="••••••••"
+        <label className="set-row-label" htmlFor="pw-current">Current password</label>
+        <input className="su-input" id="pw-current" type="password" value={current} placeholder="••••••••"
           onChange={(e) => { setCurrent(e.target.value); setDone(false); }} autoComplete="current-password" />
       </div>
       <div className="set-row">
-        <label className="set-row-label">New password <span style={{ fontWeight: 500, color: "var(--muted)" }}>(min 6 characters)</span></label>
-        <input className="su-input" type="password" value={next} placeholder="••••••••"
+        <label className="set-row-label" htmlFor="pw-new">New password <span style={{ fontWeight: 500, color: "var(--muted)" }}>(min 6 characters)</span></label>
+        <input className="su-input" id="pw-new" type="password" value={next} placeholder="••••••••"
           onChange={(e) => { setNext(e.target.value); setDone(false); }} autoComplete="new-password" />
       </div>
       <div className="set-row">
-        <label className="set-row-label">Confirm new password</label>
-        <input className={"su-input" + (mismatch ? " su-input-err" : "")} type="password" value={confirm} placeholder="••••••••"
+        <label className="set-row-label" htmlFor="pw-confirm">Confirm new password</label>
+        <input className={"su-input" + (mismatch ? " su-input-err" : "")} id="pw-confirm" type="password" value={confirm} placeholder="••••••••"
           onChange={(e) => { setConfirm(e.target.value); setDone(false); }} autoComplete="new-password" />
-        {mismatch && <span className="su-err" style={{ marginTop: 4 }}><Icon name="close" size={13} />Passwords don't match</span>}
+        {mismatch && <span className="su-err" role="alert" style={{ marginTop: 4 }}><Icon name="close" size={13} />Passwords don't match</span>}
       </div>
       {err && <span className="su-err"><Icon name="close" size={14} />{err}</span>}
       <div className="set-actions">
@@ -176,7 +176,7 @@ export default function SettingsPage() {
   return (
     <div className="nu-root">
       <Nav />
-      <main className="nu-main set-main">
+      <main className="nu-main set-main" id="main-content">
         <h1 className="set-title">Settings</h1>
 
         <section className="set-card">
@@ -211,7 +211,7 @@ export default function SettingsPage() {
               <div className="su-swatches">
                 {AV_PRESETS.map((g, i) => (
                   <button key={i} type="button" className={"su-swatch" + (avatarGrad === g ? " is-on" : "")}
-                    style={{ background: `linear-gradient(135deg, ${g[0]}, ${g[1]})` }} onClick={() => setAvatarGrad(g)} />
+                    style={{ background: `linear-gradient(135deg, ${g[0]}, ${g[1]})` }} onClick={() => setAvatarGrad(g)} aria-label={`Avatar color ${i + 1}`} />
                 ))}
               </div>
             </Field>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
               <div className="su-swatches">
                 {BN_PRESETS.map((g, i) => (
                   <button key={i} type="button" className={"su-swatch su-swatch-wide" + (bannerGrad === g ? " is-on" : "")}
-                    style={{ background: `linear-gradient(120deg, ${g[0]}, ${g[1]} 55%, ${g[2]})` }} onClick={() => setBannerGrad(g)} />
+                    style={{ background: `linear-gradient(120deg, ${g[0]}, ${g[1]} 55%, ${g[2]})` }} onClick={() => setBannerGrad(g)} aria-label={`Banner color ${i + 1}`} />
                 ))}
               </div>
             </Field>
@@ -238,8 +238,8 @@ export default function SettingsPage() {
               <button className="nu-btn-post" type="submit" disabled={saving}>
                 {saving ? <><span className="wr-spin" />Saving…</> : "Save profile"}
               </button>
-              {saved && <span className="set-saved"><Icon name="check" size={14} />Saved</span>}
-              {err && <span className="su-err"><Icon name="close" size={14} />{err}</span>}
+              {saved && <span className="set-saved" role="status"><Icon name="check" size={14} />Saved</span>}
+              {err && <span className="su-err" role="alert"><Icon name="close" size={14} />{err}</span>}
             </div>
           </form>
         </section>
@@ -310,7 +310,7 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your settings, your call ✦</footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your settings, your call ✦ · <Link to="/privacy">Privacy</Link></footer>
       </main>
     </div>
   );

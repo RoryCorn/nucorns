@@ -68,10 +68,11 @@ function MsgLink() {
 export default function Nav() {
   const { user } = useAuth();
   return (
-    <header className="nu-nav">
-      <div className="nu-nav-inner">
-        <Link className="nu-wordmark" to="/"><img className="nu-logo-img" src={logo} alt="" />nu<span>corns</span></Link>
-        <div className="nu-search"><Icon name="search" size={18} /><input placeholder="Search creators & stories" /></div>
+    <header className="nu-nav" role="banner">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <nav className="nu-nav-inner" aria-label="Main navigation">
+        <Link className="nu-wordmark" to="/"><img className="nu-logo-img" src={logo} alt="nucorns home" />nu<span>corns</span></Link>
+        <div className="nu-search"><Icon name="search" size={18} /><input placeholder="Search creators & stories" aria-label="Search creators and stories" /></div>
         <div className="nu-nav-right">
           {user ? (
             <>
@@ -84,7 +85,7 @@ export default function Nav() {
             <Link className="nu-nav-write" to="/welcome"><Icon name="sparkle" size={16} />Join nucorns</Link>
           )}
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

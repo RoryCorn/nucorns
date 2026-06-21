@@ -9,6 +9,7 @@ import AdvertisingPage from "./pages/AdvertisingPage";
 import CreativeSubmitPage from "./pages/CreativeSubmitPage";
 import MessagesPage from "./pages/MessagesPage";
 import GroupPage from "./pages/GroupPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import SettingsPage from "./pages/SettingsPage";
 import HomePage from "./pages/HomePage";
 
@@ -35,6 +36,7 @@ export default function App() {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/advertising" element={<AdvertisingPage />} />
               <Route path="/advertise/creative/:token" element={<CreativeSubmitPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>

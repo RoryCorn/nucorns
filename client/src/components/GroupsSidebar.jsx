@@ -50,10 +50,10 @@ export default function GroupsSidebar() {
         showCreate ? (
           <div className="gs-create-form">
             <input className="su-input" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="#groupname" maxLength={42} autoFocus />
+              placeholder="#groupname" maxLength={42} autoFocus aria-label="Group name" />
             <input className="su-input" value={desc} onChange={(e) => setDesc(e.target.value)}
-              placeholder="Description (optional)" maxLength={200} />
-            {err && <span className="su-err"><Icon name="close" size={13} />{err}</span>}
+              placeholder="Description (optional)" maxLength={200} aria-label="Group description" />
+            {err && <span className="su-err" role="alert"><Icon name="close" size={13} />{err}</span>}
             <div className="gs-create-btns">
               <button className="nu-btn-post" disabled={name.replace(/^#/, "").replace(/[^a-z0-9]/gi, "").length < 2 || busy} onClick={create}>
                 {busy ? "Creating…" : "Create"}
@@ -71,7 +71,7 @@ export default function GroupsSidebar() {
   );
 
   return (
-    <div className="gs-sidebar">
+    <nav className="gs-sidebar" aria-label="Groups">
       {/* Desktop: always visible */}
       <div className="gs-desktop">
         <div className="gs-title">Special Interest Groups</div>
@@ -87,6 +87,6 @@ export default function GroupsSidebar() {
         </button>
         {mobileOpen && <div className="gs-mobile-content">{list}</div>}
       </div>
-    </div>
+    </nav>
   );
 }

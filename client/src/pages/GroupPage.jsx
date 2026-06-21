@@ -74,7 +74,7 @@ export default function GroupPage() {
   return (
     <div className="nu-root">
       <Nav />
-      <main className="gp-main">
+      <main className="gp-main" id="main-content">
         <section className="gp-header">
           <h1 className="gp-name">{group.name}</h1>
           {group.description && <p className="gp-desc">{group.description}</p>}
@@ -100,7 +100,7 @@ export default function GroupPage() {
           ))}
         </section>
 
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦</footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · your corner of the internet ✦ · <Link to="/privacy">Privacy</Link></footer>
       </main>
     </div>
   );

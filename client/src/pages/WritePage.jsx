@@ -162,16 +162,16 @@ export default function WritePage() {
         </div>
       )}
 
-      <main className="wr-main">
+      <main className="wr-main" id="main-content">
         {alert && (
-          <div className={"wr-alert wr-alert-" + alert.kind}>
+          <div className={"wr-alert wr-alert-" + alert.kind} role="alert">
             <div className="wr-alert-icon"><Icon name="close" size={18} /></div>
             <div>
               <div className="wr-alert-title">{alert.title}</div>
               <div className="wr-alert-msg">{alert.msg}</div>
               {alert.cats && alert.cats.length > 0 && <div className="wr-alert-cats">{alert.cats.map((c) => <span key={c}>{c}</span>)}</div>}
             </div>
-            <button className="wr-alert-x" onClick={() => setAlert(null)}><Icon name="close" size={15} /></button>
+            <button className="wr-alert-x" onClick={() => setAlert(null)} aria-label="Dismiss alert"><Icon name="close" size={15} /></button>
           </div>
         )}
 
@@ -185,7 +185,7 @@ export default function WritePage() {
                 {WR_COVERS.map((g, i) => (
                   <button key={i} className={"wr-cv-sw" + (coverGrad === g ? " is-on" : "")}
                     style={{ background: `linear-gradient(120deg, ${g[0]}, ${g[1]} 55%, ${g[2]})` }}
-                    onClick={() => setCoverGrad(g)} />
+                    onClick={() => setCoverGrad(g)} aria-label={`Cover gradient ${i + 1}`} />
                 ))}
               </div>
             )}
@@ -200,17 +200,17 @@ export default function WritePage() {
         </div>
 
         <textarea className="wr-title" rows={1} placeholder="Your story title…" value={title}
-          onChange={(e) => { setTitle(e.target.value); autogrow(e.target); }} />
+          aria-label="Story title" onChange={(e) => { setTitle(e.target.value); autogrow(e.target); }} />
         <textarea className="wr-dek" rows={1} placeholder="Add a subtitle (optional)" value={dek}
-          onChange={(e) => { setDek(e.target.value); autogrow(e.target); }} />
+          aria-label="Story subtitle" onChange={(e) => { setDek(e.target.value); autogrow(e.target); }} />
         <textarea className="wr-body" rows={6} placeholder="Tell your story. Leave a blank line between paragraphs." value={body}
-          onChange={(e) => { setBody(e.target.value); autogrow(e.target); }} />
+          aria-label="Story body" onChange={(e) => { setBody(e.target.value); autogrow(e.target); }} />
 
         <div className="wr-gallery">
           {photos.map((p, i) => (
             <div className="wr-ph" key={i}>
               {p.kind === "video" ? <video src={p.src} muted /> : <img src={p.src} alt="" />}
-              <button className="nu-tray-x" onClick={() => removePhoto(i)}><Icon name="close" size={13} /></button>
+              <button className="nu-tray-x" onClick={() => removePhoto(i)} aria-label="Remove photo"><Icon name="close" size={13} /></button>
             </div>
           ))}
           <button className="wr-addph" onClick={() => photoRef.current.click()}>
@@ -225,7 +225,7 @@ export default function WritePage() {
             {selectedGroups.map((slug) => (
               <span key={slug} className="wr-group-tag">
                 #{slug}
-                <button onClick={() => setSelectedGroups((g) => g.filter((s) => s !== slug))}><Icon name="close" size={12} /></button>
+                <button onClick={() => setSelectedGroups((g) => g.filter((s) => s !== slug))} aria-label={`Remove group ${slug}`}><Icon name="close" size={12} /></button>
               </span>
             ))}
           </div>
@@ -233,7 +233,7 @@ export default function WritePage() {
             <div className="wr-groups-picker">
               <input className="su-input wr-groups-input" value={groupQuery}
                 onChange={(e) => setGroupQuery(e.target.value)}
-                placeholder="Search or type #groupname to create" />
+                placeholder="Search or type #groupname to create" aria-label="Search groups" />
               {groupQuery.trim() && (
                 <div className="wr-groups-drop">
                   {allGroups

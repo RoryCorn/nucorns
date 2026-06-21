@@ -152,7 +152,7 @@ function ChatThread({ handle, user }) {
   return (
     <section className="dm-chat dm-chat-active-mobile">
       <div className="dm-chat-head">
-        <button className="dm-back" onClick={() => navigate("/messages")}>
+        <button className="dm-back" onClick={() => navigate("/messages")} aria-label="Back to conversations">
           <Icon name="chevron" />
         </button>
         {partner && (
@@ -192,6 +192,7 @@ function ChatThread({ handle, user }) {
           className="dm-input"
           type="text"
           placeholder="Write a message…"
+          aria-label="Write a message"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           disabled={sending}
@@ -200,6 +201,7 @@ function ChatThread({ handle, user }) {
           className="dm-send"
           type="submit"
           disabled={!body.trim() || sending}
+          aria-label="Send message"
         >
           <Icon name="send" />
         </button>
@@ -244,7 +246,7 @@ export default function MessagesPage() {
   return (
     <div className="nu-root">
       <Nav />
-      <main className="dm-wrap">
+      <main className="dm-wrap" id="main-content">
         <Sidebar
           conversations={conversations}
           activeHandle={handle}

@@ -23,9 +23,9 @@ export default function PostCard({ post, featured }) {
         <div className="pc-cat">
           {post.category}
           {post.groups && post.groups.length > 0 && post.groups.map((g) => (
-            <span key={g.slug} className="pc-group" onClick={(e) => e.stopPropagation()}>
-              <a href={`/g/${g.slug}`}>#{g.slug}</a>
-            </span>
+            <Link key={g.slug} className="pc-group" to={`/g/${g.slug}`} onClick={(e) => e.stopPropagation()}>
+              #{g.slug}
+            </Link>
           ))}
         </div>
         <h3 className="pc-title">{post.title}</h3>

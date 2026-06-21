@@ -84,7 +84,7 @@ export default function ConversationPage() {
   return (
     <div className="nu-root">
       <Nav />
-      <main className="nu-main">
+      <main className="nu-main" id="main-content">
         <Article post={post} showHero={appearance.showHero} />
 
         {post.mine && (
@@ -123,7 +123,7 @@ export default function ConversationPage() {
             ))}
           </div>
         </section>
-        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · be kind in the comments ✦</footer>
+        <footer className="nu-foot">made with <span className="nu-foot-mark">nucorns</span> · be kind in the comments ✦ · <Link to="/privacy">Privacy</Link></footer>
       </main>
 
       <Lightbox m={lightbox} onClose={() => setLightbox(null)} />
