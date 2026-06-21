@@ -62,9 +62,12 @@ export default function ProfilePage() {
               <div className="pf-actions">
                 {isMine
                   ? <Link className="nu-follow is-following pf-edit" to="/settings"><Icon name="sparkle" size={15} />Edit profile</Link>
-                  : <button className={"nu-follow" + (following ? " is-following" : "")} onClick={() => setFollowing((v) => !v)}>
-                      {following ? <><Icon name="check" size={15} />Following</> : "Follow"}
-                    </button>}
+                  : <>
+                      <button className={"nu-follow" + (following ? " is-following" : "")} onClick={() => setFollowing((v) => !v)}>
+                        {following ? <><Icon name="check" size={15} />Following</> : "Follow"}
+                      </button>
+                      {user && <Link className="nu-pill pf-msg" to={`/messages/${profile.handle}`}><Icon name="message" size={16} />Message</Link>}
+                    </>}
                 <button className="nu-pill pf-share"><Icon name="share" size={17} />Share</button>
               </div>
             </div>

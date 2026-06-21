@@ -14,6 +14,8 @@ const commentRoutes = require("./routes/comments");
 const reactionRoutes = require("./routes/reactions");
 const matchRoutes = require("./routes/matches");
 const adRoutes = require("./routes/ads");
+const messageRoutes = require("./routes/messages");
+const groupRoutes = require("./routes/groups");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -48,6 +50,8 @@ app.use("/api/posts/:postId/comments", commentRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/ads", adRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/groups", groupRoutes);
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
 

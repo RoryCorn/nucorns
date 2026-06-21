@@ -54,6 +54,7 @@ function serializePost(row, opts = {}) {
     pinned: !!row.pinned,
     unverified: !!row.unverified,
     createdAt: row.created_at,
+    groups: db.prepare("SELECT g.name, g.slug FROM post_groups pg JOIN groups g ON pg.group_id = g.id WHERE pg.post_id = ?").all(row.id),
   };
 }
 
@@ -117,6 +118,14 @@ router.post("/", requireAuth, async (req, res) => {
     created_at: ts,
   });
 
+  // Attach up to 5 groups
+  const groupSlugs = Array.isArray(req.body.groups) ? req.body.groups.slice(0, 5) : [];
+  const insertPG = db.prepare("INSERT OR IGNORE INTO post_groups (post_id, group_id) VALUES (?, ?)");
+  for (const slug of groupSlugs) {
+    const g = db.prepare("SELECT id FROM groups WHERE slug = ?").get(String(slug).toLowerCase());
+    if (g) insertPG.run(id, g.id);
+  }
+
   const row = db.prepare("SELECT * FROM posts WHERE id = ?").get(id);
   res.status(201).json({ post: serializePost(row, { viewerId: req.user.id }) });
 });
@@ -166,6 +175,16 @@ router.patch("/:id", requireAuth, async (req, res) => {
     unverified: check.unverified ? 1 : 0,
     media: JSON.stringify(newMedia),
   });
+
+  // Update group tags (replace all)
+  if (Array.isArray(req.body.groups)) {
+    db.prepare("DELETE FROM post_groups WHERE post_id = ?").run(row.id);
+    const insertPG = db.prepare("INSERT OR IGNORE INTO post_groups (post_id, group_id) VALUES (?, ?)");
+    for (const slug of req.body.groups.slice(0, 5)) {
+      const g = db.prepare("SELECT id FROM groups WHERE slug = ?").get(String(slug).toLowerCase());
+      if (g) insertPG.run(row.id, g.id);
+    }
+  }
 
   const updated = db.prepare("SELECT * FROM posts WHERE id = ?").get(row.id);
   res.json({ post: serializePost(updated, { viewerId: req.user.id }) });

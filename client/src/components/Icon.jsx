@@ -21,6 +21,8 @@ const PATHS = {
   plus: <path d="M12 5v14M5 12h14" />,
   user: <g><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></g>,
   settings: <g><circle cx="12" cy="12" r="3" /><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></g>,
+  message: <g><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></g>,
+  hash: <path d="M4 9h16M4 15h16M10 3l-2 18M16 3l-2 18" />,
 };
 
 export default function Icon({ name, size = 20, fill = "none" }) {

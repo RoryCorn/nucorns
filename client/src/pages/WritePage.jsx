@@ -26,11 +26,18 @@ export default function WritePage() {
   const [coverGrad, setCoverGrad] = useState(WR_COVERS[0]);
   const [coverSrc, setCoverSrc] = useState(null);
   const [photos, setPhotos] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
+  const [groupQuery, setGroupQuery] = useState("");
   const [status, setStatus] = useState("idle"); // idle|checking|blocked|loading
   const [alert, setAlert] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const coverRef = useRef(null);
   const photoRef = useRef(null);
+
+  useEffect(() => {
+    api.get("/groups").then((d) => setAllGroups(d.groups || [])).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!editId) return;
@@ -48,6 +55,7 @@ export default function WritePage() {
         setCoverGrad(match || WR_COVERS[0]);
       }
       setPhotos(Array.isArray(post.media) ? post.media : []);
+      setSelectedGroups(Array.isArray(post.groups) ? post.groups.map((g) => g.slug) : []);
       setStatus("idle");
     }).catch(() => setStatus("idle"));
   }, [editId]);
@@ -93,6 +101,7 @@ export default function WritePage() {
         body: body.trim(),
         cover: coverSrc ? { src: coverSrc } : coverGrad,
         media: photos,
+        groups: selectedGroups,
       };
       const res = editId
         ? await api.patch(`/posts/${editId}`, payload)
@@ -208,6 +217,58 @@ export default function WritePage() {
             <Icon name="photo" size={20} /><span>Add photos / video</span>
           </button>
           <input ref={photoRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => { onPhotos(e.target.files); e.target.value = ""; }} />
+        </div>
+
+        <div className="wr-groups">
+          <div className="wr-groups-label"><Icon name="hash" size={15} />Groups <span className="wr-groups-hint">(up to 5)</span></div>
+          <div className="wr-groups-tags">
+            {selectedGroups.map((slug) => (
+              <span key={slug} className="wr-group-tag">
+                #{slug}
+                <button onClick={() => setSelectedGroups((g) => g.filter((s) => s !== slug))}><Icon name="close" size={12} /></button>
+              </span>
+            ))}
+          </div>
+          {selectedGroups.length < 5 && (
+            <div className="wr-groups-picker">
+              <input className="su-input wr-groups-input" value={groupQuery}
+                onChange={(e) => setGroupQuery(e.target.value)}
+                placeholder="Search or type #groupname to create" />
+              {groupQuery.trim() && (
+                <div className="wr-groups-drop">
+                  {allGroups
+                    .filter((g) => g.slug.includes(groupQuery.replace(/^#/, "").toLowerCase()) && !selectedGroups.includes(g.slug))
+                    .slice(0, 6)
+                    .map((g) => (
+                      <button key={g.slug} className="wr-groups-opt"
+                        onClick={() => { setSelectedGroups((prev) => [...prev, g.slug]); setGroupQuery(""); }}>
+                        <Icon name="hash" size={14} />{g.name.replace(/^#/, "")}
+                        <span className="wr-groups-opt-n">{g.memberCount} members</span>
+                      </button>
+                    ))}
+                  {(() => {
+                    const slug = groupQuery.replace(/^#/, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+                    if (slug.length >= 2 && !allGroups.some((g) => g.slug === slug) && !selectedGroups.includes(slug)) {
+                      return (
+                        <button className="wr-groups-opt wr-groups-create"
+                          onClick={async () => {
+                            try {
+                              const res = await api.post("/groups", { name: slug });
+                              setAllGroups((prev) => [...prev, res.group]);
+                              setSelectedGroups((prev) => [...prev, res.group.slug]);
+                              setGroupQuery("");
+                            } catch (e) { setAlert({ kind: "text", title: "Couldn't create group", msg: e.message }); }
+                          }}>
+                          <Icon name="plus" size={14} />Create #{slug}
+                        </button>
+                      );
+                    }
+                    return null;
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="wr-guide">

@@ -7,6 +7,8 @@ import SignUpPage from "./pages/SignUpPage";
 import WritePage from "./pages/WritePage";
 import AdvertisingPage from "./pages/AdvertisingPage";
 import CreativeSubmitPage from "./pages/CreativeSubmitPage";
+import MessagesPage from "./pages/MessagesPage";
+import GroupPage from "./pages/GroupPage";
 import SettingsPage from "./pages/SettingsPage";
 import HomePage from "./pages/HomePage";
 
@@ -27,6 +29,9 @@ export default function App() {
               <Route path="/write" element={<WritePage />} />
               <Route path="/post/:id" element={<ConversationPage />} />
               <Route path="/u/:handle" element={<ProfilePage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/messages/:handle" element={<MessagesPage />} />
+              <Route path="/g/:slug" element={<GroupPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/advertising" element={<AdvertisingPage />} />
               <Route path="/advertise/creative/:token" element={<CreativeSubmitPage />} />

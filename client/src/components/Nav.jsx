@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "./Icon";
 import { Avatar } from "./Primitives";
+import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import logo from "/nucorns-mark-circle.png";
 
@@ -49,6 +50,21 @@ function AvatarMenu({ user }) {
   );
 }
 
+function MsgLink() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    api.get("/messages/unread").then((d) => setCount(d.count || 0)).catch(() => {});
+    const iv = setInterval(() => { api.get("/messages/unread").then((d) => setCount(d.count || 0)).catch(() => {}); }, 30000);
+    return () => clearInterval(iv);
+  }, []);
+  return (
+    <Link className="nu-nav-msg" to="/messages" aria-label="Messages">
+      <Icon name="message" size={20} />
+      {count > 0 && <span className="nu-nav-msg-badge">{count > 9 ? "9+" : count}</span>}
+    </Link>
+  );
+}
+
 export default function Nav() {
   const { user } = useAuth();
   return (
@@ -60,6 +76,7 @@ export default function Nav() {
           {user ? (
             <>
               {user.isAdmin && <Link className="nu-btn-ghost nu-admin-link" to="/advertising"><Icon name="lock" size={14} />Admin</Link>}
+              <MsgLink />
               <Link className="nu-nav-write" to="/write"><Icon name="sparkle" size={16} />Write</Link>
               <AvatarMenu user={user} />
             </>

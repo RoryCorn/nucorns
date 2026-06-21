@@ -20,7 +20,14 @@ export default function PostCard({ post, featured }) {
         {post.mine && <span className="pc-pin"><Icon name="sparkle" size={13} />Your story</span>}
       </div>
       <div className="pc-body">
-        <div className="pc-cat">{post.category}</div>
+        <div className="pc-cat">
+          {post.category}
+          {post.groups && post.groups.length > 0 && post.groups.map((g) => (
+            <span key={g.slug} className="pc-group" onClick={(e) => e.stopPropagation()}>
+              <a href={`/g/${g.slug}`}>#{g.slug}</a>
+            </span>
+          ))}
+        </div>
         <h3 className="pc-title">{post.title}</h3>
         <p className="pc-dek">{post.dek}</p>
         <div className="pc-meta">
